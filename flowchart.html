@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>故事语境速背 App — 用户使用全流程图</title>
+<style>
+  :root {
+    --primary: #7a6fa0;
+    --primary-light: #9b92b8;
+    --primary-bg: #eeeaf4;
+    --accent: #b83a2a;
+    --accent-light: #d4685c;
+    --accent-bg: #f8eded;
+    --success: #5a9a6a;
+    --success-light: #7db88a;
+    --success-bg: #edf5ef;
+    --bg: #f5f2f0;
+    --card: #ffffff;
+    --text: #2d2a33;
+    --text-secondary: #6b6573;
+    --border: #e0dcd8;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 24px 16px 60px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 40px 20px 32px;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .header .divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    margin: 16px auto 0;
+    border-radius: 2px;
+  }
+
+  /* Layer sections */
+  .layer {
+    margin-bottom: 36px;
+    position: relative;
+  }
+  .layer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+  }
+  .layer-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .layer-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .layer-title-en {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-left: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+
+  /* Flow items */
+  .flow-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .flow-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    position: relative;
+  }
+  .flow-item + .flow-item {
+    margin-top: 0;
+  }
+  .flow-item .icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    width: 28px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .flow-item .content {
+    flex: 1;
+  }
+  .flow-item .label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .flow-item .desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Arrow connector between flow items */
+  .flow-arrow {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+  }
+  .flow-arrow svg {
+    display: block;
+  }
+
+  /* Layer-specific colors */
+  .layer--purple .layer-badge { background: var(--primary); }
+  .layer--purple .layer-title { color: var(--primary); }
+  .layer--purple .card { border-color: #d8d2e6; }
+  .layer--purple .flow-item { background: var(--primary-bg); }
+
+  .layer--red .layer-badge { background: var(--accent); }
+  .layer--red .layer-title { color: var(--accent); }
+  .layer--red .card { border-color: #e8c8c4; border-width: 2px; }
+
+  .layer--green .layer-badge { background: var(--success); }
+  .layer--green .layer-title { color: var(--success); }
+  .layer--green .card { border-color: #c4ddd0; }
+  .layer--green .flow-item { background: var(--success-bg); }
+
+  .layer--blue .layer-badge { background: #4a7fa5; }
+  .layer--blue .layer-title { color: #4a7fa5; }
+  .layer--blue .card { border-color: #c4d8e8; }
+  .layer--blue .flow-item { background: #edf3f8; }
+
+  .layer--orange .layer-badge { background: #b07a3a; }
+  .layer--orange .layer-title { color: #b07a3a; }
+  .layer--orange .card { border-color: #e0d2c0; }
+  .layer--orange .flow-item { background: #f8f4ee; }
+
+  /* Core cycle — the prominent section */
+  .core-cycle {
+    position: relative;
+  }
+  .core-cycle .card {
+    background: linear-gradient(135deg, #fdfafa 0%, #f9f5f5 100%);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(184,58,42,0.08);
+    padding: 28px 24px;
+  }
+
+  .step-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .step-node {
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    position: relative;
+  }
+  .step-timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 44px;
+    flex-shrink: 0;
+  }
+  .step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-dot.start { background: var(--primary); }
+  .step-dot.s1 { background: #7a6fa0; }
+  .step-dot.s2 { background: #8a5a9a; }
+  .step-dot.s3 { background: #a04a6a; }
+  .step-dot.s4 { background: var(--accent); }
+  .step-dot.s5 { background: #b85a2a; }
+  .step-dot.end { background: var(--success); }
+  .step-line {
+    width: 2px;
+    flex: 1;
+    min-height: 12px;
+    background: linear-gradient(to bottom, var(--primary-light), var(--accent-light));
+    opacity: 0.4;
+  }
+
+  .step-card {
+    flex: 1;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin-bottom: 8px;
+    margin-top: 2px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s;
+  }
+  .step-card:hover {
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  }
+  .step-card .step-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-card .step-title .emoji {
+    font-size: 18px;
+  }
+  .step-card .step-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .step-card .step-desc strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .step-card .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 4px;
+    margin-top: 6px;
+  }
+  .tag--purple { background: var(--primary-bg); color: var(--primary); }
+  .tag--red { background: var(--accent-bg); color: var(--accent); }
+  .tag--green { background: var(--success-bg); color: var(--success); }
+
+  .nav-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 2px 0 6px;
+    font-style: italic;
+  }
+  .nav-hint .arrow {
+    color: var(--accent);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* Sidebar note for direct access */
+  .side-note {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #f8f6fa;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary);
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .side-note strong {
+    color: var(--primary);
+  }
+
+  /* Review schedule visual */
+  .schedule-bar {
+    display: flex;
+    gap: 6px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .schedule-chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--primary-bg);
+    color: var(--primary);
+    border: 1px solid #d8d2e6;
+  }
+  .schedule-chip.active {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* Progress bar visual */
+  .progress-visual {
+    margin: 12px 0;
+  }
+  .progress-bar-track {
+    height: 24px;
+    border-radius: 12px;
+    background: #eee;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+  }
+  .progress-seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    transition: width 0.3s;
+  }
+  .progress-seg.mastered { background: var(--success); }
+  .progress-seg.consolidating { background: #e8b84a; }
+  .progress-seg.unmastered { background: var(--accent-light); }
+  .progress-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .progress-legend span::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .progress-legend .l-mastered::before { background: var(--success); }
+  .progress-legend .l-consolidating::before { background: #e8b84a; }
+  .progress-legend .l-unmastered::before { background: var(--accent-light); }
+
+  /* Gap analysis section */
+  .gap-section {
+    margin-top: 36px;
+  }
+  .gap-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 640px) {
+    .gap-grid { grid-template-columns: 1fr; }
+  }
+  .gap-col {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .gap-col h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+  }
+  .gap-col.closed h3 { color: var(--success); border-color: #c4ddd0; }
+  .gap-col.open h3 { color: var(--accent); border-color: #e8c8c4; }
+  .gap-col ul {
+    list-style: none;
+    padding: 0;
+  }
+  .gap-col li {
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0eeec;
+    color: var(--text-secondary);
+  }
+  .gap-col li:last-child { border-bottom: none; }
+  .gap-col li .check {
+    margin-right: 6px;
+    font-size: 14px;
+  }
+
+  /* Connector between layers */
+  .layer-connector {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .layer-connector svg {
+    display: block;
+  }
+
+  /* Horizontal flow for daily execution */
+  .h-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .h-flow-node {
+    background: var(--primary-bg);
+    border: 1px solid #d8d2e6;
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .h-flow-arrow {
+    font-size: 18px;
+    color: var(--primary-light);
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+
+  /* Stats cards */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 12px 0;
+  }
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: 1fr; }
+  }
+  .stat-card {
+    background: #f8f6fa;
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+    border: 1px solid #e8e4ee;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .stat-card .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* Mini SVG chart placeholder */
+  .mini-chart {
+    margin: 12px 0;
+    text-align: center;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>故事语境速背 App — 用户使用全流程图</h1>
+    <p class="subtitle">从 3500 词目标到完整记忆闭环</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- ==================== LAYER 1 ==================== -->
+  <div class="layer layer--purple">
+    <div class="layer-header">
+      <div class="layer-badge">1</div>
+      <div class="layer-title">宏观规划层 <span class="layer-title-en">Macro Planning</span></div>
+    </div>
+    <div class="card">
+      <div class="flow-list">
+        <div class="flow-item">
+          <div class="icon">🎯</div>
+          <div class="content">
+            <div class="label">用户目标：3500 高考词汇</div>
+            <div class="desc">系统拆分为 <strong>26 Lists</strong>，每 List 约 140 词</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#7a6fa0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">📋</div>
+          <div class="content">
+            <div class="label">制定学习计划</div>
+            <div class="desc">选择词表范围、设定起止日期</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#7a6fa0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">⚙️</div>
+          <div class="content">
+            <div class="label">系统自动生成每日任务</div>
+            <div class="desc">1 List/天新学 + 艾宾浩斯复习任务自动排入</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#7a6fa0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">🔄</div>
+          <div class="content">
+            <div class="label">复习节奏：艾宾浩斯曲线</div>
+            <div class="desc">Day+1 → +2 → +4 → +7，科学间隔重复</div>
+          </div>
+        </div>
+      </div>
+      <div class="schedule-bar" style="margin-top:16px;">
+        <span class="schedule-chip active">初学 Day 0</span>
+        <span class="schedule-chip">Day +1</span>
+        <span class="schedule-chip">Day +2</span>
+        <span class="schedule-chip">Day +4</span>
+        <span class="schedule-chip">Day +7</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="layer-connector">
+    <svg width="20" height="36"><path d="M10 0 L10 28 M5 22 L10 28 L15 22" stroke="#7a6fa0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/></svg>
+  </div>
+
+  <!-- ==================== LAYER 2 ==================== -->
+  <div class="layer layer--blue">
+    <div class="layer-header">
+      <div class="layer-badge">2</div>
+      <div class="layer-title">每日执行层 <span class="layer-title-en">Daily Execution Loop</span></div>
+    </div>
+    <div class="card">
+      <div class="h-flow">
+        <div class="h-flow-node">📅 打开"学习计划"页</div>
+        <div class="h-flow-arrow">→</div>
+        <div class="h-flow-node">查看日历</div>
+        <div class="h-flow-arrow">→</div>
+        <div class="h-flow-node">点击日期</div>
+        <div class="h-flow-arrow">→</div>
+        <div class="h-flow-node">查看当日任务<br><small style="font-weight:400;font-size:11px;">(新学 + 复习)</small></div>
+      </div>
+      <div style="height:10px;"></div>
+      <div class="h-flow">
+        <div class="h-flow-node">点击 List 卡片</div>
+        <div class="h-flow-arrow">→</div>
+        <div class="h-flow-node">跳转到词表页对应 List</div>
+        <div class="h-flow-arrow">→</div>
+        <div class="h-flow-node" style="background:var(--accent-bg);border-color:#e8c8c4;color:var(--accent);">进入词表索引 📖</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="layer-connector">
+    <svg width="20" height="36"><path d="M10 0 L10 28 M5 22 L10 28 L15 22" stroke="#b83a2a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <!-- ==================== LAYER 3 — CORE ==================== -->
+  <div class="layer layer--red">
+    <div class="layer-header">
+      <div class="layer-badge">3</div>
+      <div class="layer-title">单 List 学习闭环 <span class="layer-title-en">Per-List Learning Cycle — 核心流程</span></div>
+    </div>
+    <div class="core-cycle">
+      <div class="card">
+
+        <div class="step-flow">
+
+          <!-- Step 0: Word Index -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot start">📖</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-card">
+              <div class="step-title"><span class="emoji">📋</span> 词表索引 Word Index</div>
+              <div class="step-desc">
+                浏览本 List 全部单词列表。<br>
+                <strong>勾选需拼写的词</strong> — 区分「拼写词」与「认识词」，实现差异化学习。
+              </div>
+              <span class="tag tag--purple">拼写词</span>
+              <span class="tag tag--green">认识词</span>
+            </div>
+          </div>
+
+          <div class="nav-hint"><span class="arrow">↓</span> 进入下一步</div>
+
+          <!-- Step 1: Story -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot s1">1</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-card">
+              <div class="step-title"><span class="emoji">📖</span> Step 1 — 故事阅读</div>
+              <div class="step-desc">
+                在<strong>语境中认识单词</strong>。阅读故事文本，翻页浏览。<br>
+                <strong>点击单词</strong> → 弹出释义 + 发音播放。
+              </div>
+              <span class="tag tag--purple">语境输入</span>
+              <span class="tag tag--purple">点击查词</span>
+            </div>
+          </div>
+
+          <div class="nav-hint"><span class="arrow">↓</span> 进入下一步</div>
+
+          <!-- Step 2: Recall -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot s2">2</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-card">
+              <div class="step-title"><span class="emoji">🧠</span> Step 2 — 主动回忆</div>
+              <div class="step-desc">
+                看英文 → <strong>回忆中文含义</strong>。<br>
+                点击验证答案，系统记录<strong>查看次数</strong>（衡量记忆强度）。
+              </div>
+              <span class="tag tag--purple">主动回忆</span>
+              <span class="tag tag--red">查看次数追踪</span>
+            </div>
+          </div>
+
+          <div class="nav-hint"><span class="arrow">↓</span> 进入下一步</div>
+
+          <!-- Step 3: MCQ -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot s3">3</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-card">
+              <div class="step-title"><span class="emoji">✅</span> Step 3 — 词义测试</div>
+              <div class="step-desc">
+                <strong>三选一 MCQ</strong>，每组 4 题。<br>
+                提交后系统判分，<strong>错题自动入错题本</strong>。
+              </div>
+              <span class="tag tag--red">三选一</span>
+              <span class="tag tag--red">4题/组</span>
+              <span class="tag tag--red">错题本</span>
+            </div>
+          </div>
+
+          <div class="nav-hint"><span class="arrow">↓</span> 进入下一步</div>
+
+          <!-- Step 4: Spelling -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot s4">4</div>
+              <div class="step-line"></div>
+            </div>
+            <div class="step-card">
+              <div class="step-title"><span class="emoji">✍️</span> Step 4 — 拼写测试</div>
+              <div class="step-desc">
+                看<strong>中文 + 音标</strong> → 拼写英文。<br>
+                <strong>仅测勾选的拼写词</strong>，分批提交判分。
+              </div>
+              <span class="tag tag--red">拼写词专属</span>
+              <span class="tag tag--red">分批提交</span>
+            </div>
+          </div>
+
+          <div class="nav-hint"><span class="arrow">↓</span> 查看结果</div>
+
+          <!-- Report Card -->
+          <div class="step-node">
+            <div class="step-timeline">
+              <div class="step-dot end">📊</div>
+            </div>
+            <div class="step-card" style="border-color:#c4ddd0;background:#fafff9;">
+              <div class="step-title"><span class="emoji">📊</span> 成绩单</div>
+              <div class="step-desc">
+                查看本 List 学习结果：<br>
+                • <strong>正确率</strong> — 词义测试 + 拼写测试分别统计<br>
+                • <strong>进步曲线</strong> — 初学→复习的得分变化<br>
+                • <strong>掌握概览</strong> — 已掌握 / 待巩固 / 未掌握<br>
+                • <strong>待复习词</strong> — 连续 3 次正确后移出
+              </div>
+              <span class="tag tag--green">正确率</span>
+              <span class="tag tag--green">进步曲线</span>
+              <span class="tag tag--green">掌握概览</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Side note -->
+        <div class="side-note">
+          <strong>💡 快捷入口：</strong>Step 1–4 均可从词表索引直接跳转进入，无需按顺序逐步点击。
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="layer-connector">
+    <svg width="20" height="36"><path d="M10 0 L10 28 M5 22 L10 28 L15 22" stroke="#5a9a6a" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+
+  <!-- ==================== LAYER 4 ==================== -->
+  <div class="layer layer--green">
+    <div class="layer-header">
+      <div class="layer-badge">4</div>
+      <div class="layer-title">复习巩固层 <span class="layer-title-en">Review &amp; Consolidation</span></div>
+    </div>
+    <div class="card">
+      <div class="flow-list">
+        <div class="flow-item">
+          <div class="icon">🔄</div>
+          <div class="content">
+            <div class="label">艾宾浩斯复习触发</div>
+            <div class="desc">已学 List 在 Day+1 / +2 / +4 / +7 自动出现在复习任务中</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#5a9a6a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">📅</div>
+          <div class="content">
+            <div class="label">复习流程</div>
+            <div class="desc">日历点击复习 List → 词表索引 → Step 1–4（同初学流程）</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#5a9a6a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">📈</div>
+          <div class="content">
+            <div class="label">成绩单 — 进步曲线</div>
+            <div class="desc">初学 → 第1次复习 → 第2次复习 → 第3次复习 → 当前，逐次提升</div>
+          </div>
+        </div>
+        <div class="flow-arrow">
+          <svg width="20" height="24"><path d="M10 0 L10 18 M5 13 L10 18 L15 13" stroke="#5a9a6a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="flow-item">
+          <div class="icon">📊</div>
+          <div class="content">
+            <div class="label">掌握概览 — 三段式进度条</div>
+            <div class="desc">已掌握 / 待巩固 / 未掌握，直观展示记忆状态分布</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar visual -->
+      <div class="progress-visual" style="margin-top:16px;">
+        <div class="progress-bar-track">
+          <div class="progress-seg mastered" style="width:55%;">已掌握 55%</div>
+          <div class="progress-seg consolidating" style="width:30%;">待巩固 30%</div>
+          <div class="progress-seg unmastered" style="width:15%;">15%</div>
+        </div>
+        <div class="progress-legend">
+          <span class="l-mastered">已掌握</span>
+          <span class="l-consolidating">待巩固</span>
+          <span class="l-unmastered">未掌握</span>
+        </div>
+      </div>
+
+      <div class="side-note" style="border-left-color:var(--success);margin-top:16px;">
+        <strong style="color:var(--success);">🎯 移出规则：</strong>待复习词连续 3 次正确后自动移出复习列表，标记为已掌握。
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="layer-connector">
+    <svg width="20" height="36"><path d="M10 0 L10 28 M5 22 L10 28 L15 22" stroke="#4a7fa5" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/></svg>
+  </div>
+
+  <!-- ==================== LAYER 5 ==================== -->
+  <div class="layer layer--blue">
+    <div class="layer-header">
+      <div class="layer-badge">5</div>
+      <div class="layer-title">数据反馈层 <span class="layer-title-en">Progress &amp; Feedback</span></div>
+    </div>
+    <div class="card">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">📊 成绩单 Tab</div>
+          <div style="font-size:12px;color:var(--text-secondary);text-align:left;line-height:1.7;margin-top:6px;">
+            • 拼写词正确率 + 进步<br>
+            • 认识词正确率 + 进步<br>
+            • 进步曲线折线图
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">👤 我的 Tab</div>
+          <div style="font-size:12px;color:var(--text-secondary);text-align:left;line-height:1.7;margin-top:6px;">
+            • 已学单词数<br>
+            • 连续学习天数<br>
+            • 平均正确率
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">📚 词表页</div>
+          <div style="font-size:12px;color:var(--text-secondary);text-align:left;line-height:1.7;margin-top:6px;">
+            • 已完成 / 进行中 / 待学习<br>
+            • 各 List 进度条<br>
+            • 整体完成统计
+          </div>
+        </div>
+      </div>
+
+      <!-- Mini SVG progress chart -->
+      <div class="mini-chart">
+        <svg width="320" height="100" viewBox="0 0 320 100">
+          <!-- Grid lines -->
+          <line x1="40" y1="10" x2="40" y2="80" stroke="#e0dcd8" stroke-width="1"/>
+          <line x1="40" y1="80" x2="300" y2="80" stroke="#e0dcd8" stroke-width="1"/>
+          <line x1="40" y1="45" x2="300" y2="45" stroke="#e0dcd8" stroke-width="0.5" stroke-dasharray="4 3"/>
+          <line x1="40" y1="25" x2="300" y2="25" stroke="#e0dcd8" stroke-width="0.5" stroke-dasharray="4 3"/>
+          <!-- Y axis labels -->
+          <text x="35" y="83" text-anchor="end" font-size="9" fill="#999">0%</text>
+          <text x="35" y="48" text-anchor="end" font-size="9" fill="#999">50%</text>
+          <text x="35" y="28" text-anchor="end" font-size="9" fill="#999">100%</text>
+          <!-- Progress line -->
+          <polyline points="55,72 100,58 150,42 200,30 250,22 290,16" fill="none" stroke="#7a6fa0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Dots -->
+          <circle cx="55" cy="72" r="4" fill="#7a6fa0"/>
+          <circle cx="100" cy="58" r="4" fill="#7a6fa0"/>
+          <circle cx="150" cy="42" r="4" fill="#7a6fa0"/>
+          <circle cx="200" cy="30" r="4" fill="#7a6fa0"/>
+          <circle cx="250" cy="22" r="4" fill="#7a6fa0"/>
+          <circle cx="290" cy="16" r="4" fill="#5a9a6a"/>
+          <!-- X axis labels -->
+          <text x="55" y="94" text-anchor="middle" font-size="9" fill="#999">List 1</text>
+          <text x="100" y="94" text-anchor="middle" font-size="9" fill="#999">List 5</text>
+          <text x="150" y="94" text-anchor="middle" font-size="9" fill="#999">List 10</text>
+          <text x="200" y="94" text-anchor="middle" font-size="9" fill="#999">List 15</text>
+          <text x="250" y="94" text-anchor="middle" font-size="9" fill="#999">List 20</text>
+          <text x="290" y="94" text-anchor="middle" font-size="9" fill="#5a9a6a" font-weight="600">List 26</text>
+          <!-- Title -->
+          <text x="170" y="8" text-anchor="middle" font-size="10" fill="#7a6fa0" font-weight="600">正确率进步曲线示意</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connector -->
+  <div class="layer-connector">
+    <svg width="20" height="36"><path d="M10 0 L10 28 M5 22 L10 28 L15 22" stroke="#b07a3a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 3"/></svg>
+  </div>
+
+  <!-- ==================== LAYER 6 ==================== -->
+  <div class="layer layer--orange gap-section">
+    <div class="layer-header">
+      <div class="layer-badge">6</div>
+      <div class="layer-title">闭环完整性分析 <span class="layer-title-en">Gap Analysis</span></div>
+    </div>
+    <div class="gap-grid">
+      <div class="gap-col closed">
+        <h3>✅ 已形成的闭环</h3>
+        <ul>
+          <li><span class="check">✅</span>计划 → 日历 → 词表 → 学习 → 测试 → 成绩（完整学习闭环）</li>
+          <li><span class="check">✅</span>艾宾浩斯复习自动排入日历（记忆巩固闭环）</li>
+          <li><span class="check">✅</span>成绩进步曲线体现复习效果（反馈闭环）</li>
+          <li><span class="check">✅</span>拼写词 / 认识词分级管理（差异化学习闭环）</li>
+        </ul>
+      </div>
+      <div class="gap-col open">
+        <h3>⚠️ 待完善的功能</h3>
+        <ul>
+          <li><span class="check">⚠️</span>每日任务完成后无"打卡/完成"标记机制</li>
+          <li><span class="check">⚠️</span>词表页进度条未随学习完成动态更新</li>
+          <li><span class="check">⚠️</span>成绩单仅展示单个 List，缺少全局 3500 词总览</li>
+          <li><span class="check">⚠️</span>错题本仅文字提及，无独立查看入口</li>
+          <li><span class="check">⚠️</span>新建计划弹窗功能未完整对接（选词表/日期未联动日历）</li>
+          <li><span class="check">⚠️</span>缺少"今日任务"快捷入口（需从日历点进去）</li>
+          <li><span class="check">⚠️</span>26 List 完成后的"毕业/总复习"模式缺失</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    故事语境速背 App · 产品使用全流程图 · 2026
+  </div>
+
+</div>
+</body>
+</html>
