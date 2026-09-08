@@ -398,7 +398,7 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
           <div class="dash-metric">
             <div class="dash-metric-num" id="dashTodayLearned" style="color:#7a6fa0;">-</div>
             <div class="dash-metric-label">今日学习量</div>
-            <div class="dash-metric-sub" id="dashTodayLearnedSub">目标 140 词/天</div>
+            <div class="dash-metric-sub" id="dashTodayLearnedSub">目标 16 词/天</div>
             <div class="dash-metric-help" onclick="alert('指标说明：\n今日学习量 = 今天新学的单词数\n（完成 Step1-4 后计入）')">?</div>
           </div>
           <div class="dash-metric">
@@ -1138,8 +1138,7 @@ renderStudyPlans();
 
 // ===== Calendar =====
 var calPlan={},calToday=8,calSelected=8;
-var dayDoneSet = new Set();
-try { var _saved = localStorage.getItem('dayDoneSet'); if(_saved) JSON.parse(_saved).forEach(function(d){dayDoneSet.add(d);}); } catch(e){}
+var dayDoneSet = new Set([1,2,3,4,5,6,7]);
 function saveDayDone() { try { localStorage.setItem('dayDoneSet', JSON.stringify([...dayDoneSet])); } catch(e){} }
 function markDayDone(d) {
   dayDoneSet.add(d); saveDayDone();
@@ -1240,32 +1239,32 @@ function showDayPlan(d){
 
 // ===== List Cards =====
 var listCards=[
-  {num:1,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:2,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:3,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:4,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:5,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:6,cls:'done',numCls:'done-num',pct:100,meta:'36 词 - 已掌握 - 上次复习 Day 7'},
-  {num:7,cls:'done',numCls:'done-num',pct:78,meta:'36 词 - 掌握率 78% - 上次复习 Day 7'},
-  {num:8,cls:'active',numCls:'active-num',pct:0,meta:'36 词 - 今天新学 - 预计 6 分钟'},
-  {num:9,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:10,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:11,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:12,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:13,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:14,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:15,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:16,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:17,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:18,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:19,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:20,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:21,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:22,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:23,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:24,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:25,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'},
-  {num:26,cls:'pending',numCls:'pending-num',pct:0,meta:'36 词 - 待学习'}
+  {num:1,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 7'},
+  {num:2,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 7'},
+  {num:3,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 6'},
+  {num:4,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 6'},
+  {num:5,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 5'},
+  {num:6,cls:'done',numCls:'done-num',pct:100,meta:'16词 - 已掌握 - 上次复习 Day 5'},
+  {num:7,cls:'done',numCls:'done-num',pct:85,meta:'16词 - 掌握率85% - 上次复习 Day 8'},
+  {num:8,cls:'active',numCls:'active-num',pct:35,meta:'16词 - 掌握率35% - 今天新学'},
+  {num:9,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:10,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:11,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:12,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:13,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:14,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:15,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:16,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:17,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:18,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:19,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:20,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:21,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:22,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:23,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:24,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:25,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'},
+  {num:26,cls:'pending',numCls:'pending-num',pct:0,meta:'16词 - 待学习'}
 ];
 (function(){
   var html='';
@@ -1282,11 +1281,11 @@ var listCards=[
   // Dynamic progress calculation
   var doneCount=0, activeCount=0, pendingCount=0, totalWords=0, learnedWords=0;
   listCards.forEach(function(c){
-    if(c.cls==='done'){doneCount++; learnedWords+=Math.round(140*c.pct/100);}
+    if(c.cls==='done'){doneCount++; learnedWords+=Math.round(16*c.pct/100);}
     else if(c.cls==='active'){activeCount++;}
     else{pendingCount++;}
   });
-  totalWords=listCards.length*140;
+  totalWords=listCards.length*16;
   var pct=Math.round(learnedWords/totalWords*100);
   // Update stats bar
   var statsBar=document.getElementById('listsStatsBar');
@@ -1365,24 +1364,478 @@ function startWrongReview(){
 }
 
 // ===== Word Index =====
-var allVocab=[
-  {w:'radiate',p:'/ˈreɪdieɪt/',m:'v. 发出，辐射，发散'},
-  {w:'radiant',p:'/ˈreɪdiənt/',m:'adj. 容光焕发的，灿烂的'},
-  {w:'radical',p:'/ˈrædɪkəl/',m:'adj. 激进的，根本的'},
-  {w:'object',p:'/ˈɒbdʒekt/',m:'n. 物体；v. 反对'},
-  {w:'objective',p:'/əbˈdʒektɪv/',m:'adj. 客观的；n. 目标'},
-  {w:'objection',p:'/əbˈdʒekʃən/',m:'n. 反对，异议'},
-  {w:'obligation',p:'/ɒblɪˈɡeɪʃən/',m:'n. 义务，责任'},
-  {w:'oblige',p:'/əbˈlaɪdʒ/',m:'v. 迫使，责成'},
-  {w:'obscure',p:'/əbˈskjʊr/',m:'adj. 模糊的，晦涩的'},
-  {w:'observation',p:'/ˌɒbzərˈveɪʃən/',m:'n. 观察，评论'},
-  {w:'observe',p:'/əbˈzɜrv/',m:'v. 观察，遵守'},
-  {w:'obsession',p:'/əbˈseɪʃən/',m:'n. 痴迷，执念'},
-  {w:'obsolete',p:'/ˈɒbsəliːt/',m:'adj. 过时的，废弃的'},
-  {w:'obtain',p:'/əbˈteɪn/',m:'v. 获得，得到'},
-  {w:'obvious',p:'/ɒbviəs/',m:'adj. 明显的'},
-  {w:'ideal',p:'/aɪˈdiːəl/',m:'adj. 理想的；n. 理想'}
-];
+var allVocab = {
+  1: [
+    {w:'abandon',p:'/əˈbændən/',m:'v. 放弃，抛弃',s:true},
+    {w:'ability',p:'/əˈbɪləti/',m:'n. 能力，才能',s:false},
+    {w:'abnormal',p:'/æbˈnɔrməl/',m:'adj. 不正常的，异常的',s:false},
+    {w:'aboard',p:'/əˈbrd/',m:'adv. 在船上，上船',s:false},
+    {w:'abolish',p:'/əˈbɑlɪʃ/',m:'v. 废除，废止',s:true},
+    {w:'abortion',p:'/əˈbrʃən/',m:'n. 流产，堕胎',s:false},
+    {w:'abrupt',p:'/əˈbrpt/',m:'adj. 突然的，唐突的',s:true},
+    {w:'absence',p:'/ˈæbsəns/',m:'n. 缺席，缺乏',s:false},
+    {w:'absolute',p:'/ˈæbsəluːt/',m:'adj. 绝对的，完全的',s:true},
+    {w:'absorb',p:'/əbˈzɔrb/',m:'v. 吸收，吸引',s:false},
+    {w:'abstract',p:'/ˈæbstrækt/',m:'adj. 抽象的；n. 摘要',s:true},
+    {w:'absurd',p:'/əbˈsɜrd/',m:'adj. 荒谬的，可笑的',s:false},
+    {w:'abundant',p:'/əˈbʌndənt/',m:'adj. 丰富的，充裕的',s:true},
+    {w:'abuse',p:'/əˈbjuːz/',m:'v./n. 滥用，虐待',s:false},
+    {w:'academic',p:'/ækəˈdemɪk/',m:'adj. 学术的，学院的',s:true},
+    {w:'accelerate',p:'/əkˈseləreɪt/',m:'v. 加速，促进',s:false}
+  ],
+  2: [
+    {w:'accent',p:'/ˈæksent/',m:'n. 口音，重音',s:true},
+    {w:'accept',p:'/əkˈsept/',m:'v. 接受，认可',s:false},
+    {w:'access',p:'/ˈækses/',m:'n. 通道，访问权',s:true},
+    {w:'accident',p:'/ˈæksɪdənt/',m:'n. 事故，意外',s:false},
+    {w:'acclaim',p:'/əˈkleɪm/',m:'v./n. 欢呼，称赞',s:true},
+    {w:'accommodate',p:'/əˈkɑmədeɪt/',m:'v. 容纳，适应',s:false},
+    {w:'accompany',p:'/əˈkmpəni/',m:'v. 陪伴，伴随',s:true},
+    {w:'accomplish',p:'/əˈkɑmplɪʃ/',m:'v. 完成，实现',s:false},
+    {w:'accord',p:'/əˈkɔrd/',m:'n. 协议，一致',s:true},
+    {w:'account',p:'/əˈkaʊnt/',m:'n. 账户，描述',s:false},
+    {w:'accumulate',p:'/əˈkjuːmjəleɪt/',m:'v. 积累，堆积',s:true},
+    {w:'accurate',p:'/ˈækjərət/',m:'adj. 精确的，准确的',s:false},
+    {w:'accuse',p:'/əˈkjuz/',m:'v. 控告，指责',s:true},
+    {w:'achieve',p:'/əˈtʃiːv/',m:'v. 达到，实现',s:false},
+    {w:'acid',p:'/ˈæsɪd/',m:'n. 酸；adj. 酸的',s:true},
+    {w:'acknowledge',p:'/əkˈnɑlɪd/',m:'v. 承认，致谢',s:false}
+  ],
+  3: [
+    {w:'acquaint',p:'/əˈkweɪnt/',m:'v. 使熟悉，告知',s:true},
+    {w:'acquire',p:'/əˈkwaɪər/',m:'v. 获得，学到',s:false},
+    {w:'acre',p:'/ˈeɪkər/',m:'n. 英亩',s:true},
+    {w:'acrobat',p:'/ˈækrəbæt/',m:'n. 杂技演员',s:false},
+    {w:'adapt',p:'/əˈdæpt/',m:'v. 适应，改编',s:true},
+    {w:'addict',p:'/ˈædɪkt/',m:'n. 上瘾者；v. 使沉迷',s:false},
+    {w:'adequate',p:'/ˈædɪkwət/',m:'adj. 足够的，适当的',s:true},
+    {w:'adhere',p:'/ədˈhɪr/',m:'v. 坚持，黏附',s:false},
+    {w:'adjacent',p:'/əˈdʒeɪsənt/',m:'adj. 邻近的，毗连的',s:true},
+    {w:'adjust',p:'/əˈdʒʌst/',m:'v. 调整，适应',s:false},
+    {w:'administer',p:'/ədˈmɪnɪstər/',m:'v. 管理，执行',s:true},
+    {w:'admire',p:'/ədˈmaɪər/',m:'v. 钦佩，赞赏',s:false},
+    {w:'admit',p:'/ədˈmɪt/',m:'v. 承认，准许进入',s:true},
+    {w:'adolescent',p:'/ædəˈlesnt/',m:'n. 青少年；adj. 青春期的',s:false},
+    {w:'adopt',p:'/əˈdɑpt/',m:'v. 采用，收养',s:true},
+    {w:'adore',p:'/əˈdɔr/',m:'v. 爱慕，崇拜',s:false}
+  ],
+  4: [
+    {w:'adult',p:'/əˈdlt/',m:'n. 成年人；adj. 成年的',s:true},
+    {w:'advance',p:'/ədˈvæns/',m:'v./n. 前进，进步',s:false},
+    {w:'advent',p:'/ˈædvent/',m:'n. 到来，出现',s:true},
+    {w:'adventure',p:'/ədˈventʃər/',m:'n. 冒险，奇遇',s:false},
+    {w:'adverse',p:'/ˈædvɜrs/',m:'adj. 不利的，有害的',s:true},
+    {w:'advocate',p:'/ˈædvəkeɪt/',m:'v. 提倡；n. 拥护者',s:false},
+    {w:'aesthetic',p:'/esˈθetɪk/',m:'adj. 美学的，审美的',s:true},
+    {w:'affiliate',p:'/əˈfɪlieɪt/',m:'v. 使隶属；n. 附属机构',s:false},
+    {w:'affirm',p:'/əfɜrm/',m:'v. 肯定，断言',s:true},
+    {w:'affluent',p:'/ˈæfluənt/',m:'adj. 富裕的，富足的',s:false},
+    {w:'agenda',p:'/əˈdendə/',m:'n. 议程，日程',s:true},
+    {w:'aggravate',p:'/ˈæɡrəveɪt/',m:'v. 加重，恶化',s:false},
+    {w:'agitate',p:'/ˈædʒteɪt/',m:'v. 搅动，煽动',s:true},
+    {w:'agony',p:'/ˈæɡəni/',m:'n. 痛苦，苦恼',s:false},
+    {w:'ailment',p:'/ˈeɪlmənt/',m:'n. 疾病，小病',s:true},
+    {w:'aim',p:'/eɪm/',m:'v./n. 目标，瞄准',s:false}
+  ],
+  5: [
+    {w:'aircraft',p:'/erkræft/',m:'n. 飞机，航空器',s:true},
+    {w:'aisle',p:'/aɪl/',m:'n. 通道，走廊',s:false},
+    {w:'album',p:'/ˈælbəm/',m:'n. 相册，专辑',s:true},
+    {w:'alcohol',p:'/ˈælkəhɑl/',m:'n. 酒精，酒',s:false},
+    {w:'alert',p:'/əˈlɜrt/',m:'adj. 警觉的；v. 警告',s:true},
+    {w:'alien',p:'/ˈeɪliən/',m:'n. 外国人；adj. 外国的',s:false},
+    {w:'align',p:'/əˈlaɪn/',m:'v. 对齐，结盟',s:true},
+    {w:'allege',p:'/əˈledʒ/',m:'v. 声称，断言',s:false},
+    {w:'alleviate',p:'/əˈliːvieɪt/',m:'v. 减轻，缓解',s:true},
+    {w:'alliance',p:'/əˈlaɪəns/',m:'n. 联盟，同盟',s:false},
+    {w:'allocate',p:'/ˈæləkeɪt/',m:'v. 分配，拨出',s:true},
+    {w:'allowance',p:'/əˈlaʊəns/',m:'n. 津贴，允许',s:false},
+    {w:'ally',p:'/ˈælaɪ/',m:'n. 盟友；v. 结盟',s:true},
+    {w:'alter',p:'/ˈɔltər/',m:'v. 改变，更改',s:false},
+    {w:'alternate',p:'/ɔltərnət/',m:'adj. 交替的；v. 轮流',s:true},
+    {w:'amateur',p:'/ˈæmətər/',m:'n. 业余爱好者',s:false}
+  ],
+  6: [
+    {w:'ambiguous',p:'/æmˈbɪɡjuəs/',m:'adj. 模棱两可的',s:true},
+    {w:'ambition',p:'/æmˈbɪʃən/',m:'n. 雄心，抱负',s:false},
+    {w:'amend',p:'/əˈmend/',m:'v. 修改，修正',s:true},
+    {w:'ample',p:'/æmpəl/',m:'adj. 充足的，丰富的',s:false},
+    {w:'analogy',p:'/əˈnælədi/',m:'n. 类比，类推',s:true},
+    {w:'analyze',p:'/ˈænəlaɪz/',m:'v. 分析，解析',s:false},
+    {w:'ancestor',p:'/ænsestər/',m:'n. 祖先，祖宗',s:true},
+    {w:'anchor',p:'/ˈæŋkər/',m:'n. 锚；v. 固定',s:false},
+    {w:'ancient',p:'/ˈeɪnʃənt/',m:'adj. 古代的，古老的',s:true},
+    {w:'anniversary',p:'/ˌænɪˈvɜrsəri/',m:'n. 周年纪念',s:false},
+    {w:'announce',p:'/əˈnaʊns/',m:'v. 宣布，通知',s:true},
+    {w:'annoy',p:'/əˈnɔɪ/',m:'v. 使烦恼，打扰',s:false},
+    {w:'annual',p:'/ˈænjuəl/',m:'adj. 每年的，年度的',s:true},
+    {w:'anonymous',p:'/əˈnɑnɪməs/',m:'adj. 匿名的',s:false},
+    {w:'anticipate',p:'/ænˈtsɪpeɪt/',m:'v. 预期，期望',s:true},
+    {w:'anxiety',p:'/æŋˈzaɪəti/',m:'n. 焦虑，不安',s:false}
+  ],
+  7: [
+    {w:'apparent',p:'/əˈpærənt/',m:'adj. 明显的，表面的',s:true},
+    {w:'appeal',p:'/əpiːl/',m:'v./n. 呼吁，吸引',s:false},
+    {w:'appendix',p:'/əˈpendɪks/',m:'n. 附录，阑尾',s:true},
+    {w:'appetite',p:'/ˈæpɪtaɪt/',m:'n. 食欲，欲望',s:false},
+    {w:'applaud',p:'/əˈplɔd/',m:'v. 鼓掌，称赞',s:true},
+    {w:'apply',p:'/əˈplaɪ/',m:'v. 申请，应用',s:false},
+    {w:'appoint',p:'/əˈpɔɪnt/',m:'v. 任命，约定',s:true},
+    {w:'appreciate',p:'/əˈpriːʃieɪt/',m:'v. 欣赏，感激',s:false},
+    {w:'approach',p:'/əˈproʊtʃ/',m:'v. 接近；n. 方法',s:true},
+    {w:'appropriate',p:'/əˈproʊpriət/',m:'adj. 适当的，合适的',s:false},
+    {w:'approve',p:'/əˈpruːv/',m:'v. 批准，赞成',s:true},
+    {w:'approximate',p:'/əprɑksɪmət/',m:'adj. 大约的，近似的',s:false},
+    {w:'arbitrary',p:'/ˈɑrbɪtreri/',m:'adj. 任意的，武断的',s:true},
+    {w:'arcade',p:'/ɑrˈkeɪd/',m:'n. 拱廊，游乐场',s:false},
+    {w:'arena',p:'/əˈriːnə/',m:'n. 竞技场，舞台',s:true},
+    {w:'argue',p:'/ˈɑrɡjuː/',m:'v. 争论，主张',s:false}
+  ],
+  8: [
+    {w:'radiate',p:'/reɪdieɪt/',m:'v. 发出，辐射，发散',s:true},
+    {w:'radiant',p:'/ˈreɪdiənt/',m:'adj. 容光焕发的，灿烂的',s:false},
+    {w:'radical',p:'/ˈrædɪkəl/',m:'adj. 激进的，根本的',s:true},
+    {w:'obscure',p:'/əbˈskjʊr/',m:'adj. 晦涩的；v. 使模糊',s:false},
+    {w:'object',p:'/ˈɒbdʒekt/',m:'n. 物体；v. 反对',s:true},
+    {w:'objective',p:'/əbˈdʒektɪv/',m:'adj. 客观的；n. 目标',s:false},
+    {w:'objection',p:'/əbˈdʒekʃən/',m:'n. 反对，异议',s:true},
+    {w:'obligation',p:'/ɒblˈɡeɪʃən/',m:'n. 义务，责任',s:false},
+    {w:'oblige',p:'/əbˈlaɪdʒ/',m:'v. 迫使，责成',s:true},
+    {w:'observation',p:'/ˌɒbzərˈveɪʃən/',m:'n. 观察，观测',s:false},
+    {w:'observe',p:'/əbˈzɜrv/',m:'v. 观察，遵守',s:true},
+    {w:'obsession',p:'/əbˈseɪʃən/',m:'n. 痴迷，执念',s:false},
+    {w:'obsolete',p:'/ˈɒbsəliːt/',m:'adj. 过时的，废弃的',s:true},
+    {w:'obtain',p:'/əbˈten/',m:'v. 获得，得到',s:false},
+    {w:'obvious',p:'/ˈɒbviəs/',m:'adj. 明显的，显而易见的',s:true},
+    {w:'ideal',p:'/aɪdiːəl/',m:'adj. 理想的；n. 理想',s:false}
+  ],
+  9: [
+    {w:'occasion',p:'/əˈkeɪən/',m:'n. 场合，时机',s:true},
+    {w:'occupy',p:'/ˈɑkjəpaɪ/',m:'v. 占据，占用',s:false},
+    {w:'occur',p:'/əˈkɜr/',m:'v. 发生，出现',s:true},
+    {w:'odd',p:'/ɑd/',m:'adj. 奇怪的，奇数的',s:false},
+    {w:'offend',p:'/əˈfend/',m:'v. 冒犯，得罪',s:true},
+    {w:'offset',p:'/ɔfset/',m:'v. 抵消，补偿',s:false},
+    {w:'offspring',p:'/ˈɔfsprɪŋ/',m:'n. 后代，子孙',s:true},
+    {w:'olive',p:'/ˈɑlv/',m:'n. 橄榄；adj. 橄榄色的',s:false},
+    {w:'omit',p:'/oʊˈmt/',m:'v. 省略，遗漏',s:true},
+    {w:'opponent',p:'/əˈpoʊnənt/',m:'n. 对手，反对者',s:false},
+    {w:'oppose',p:'/əˈpoʊz/',m:'v. 反对，反抗',s:true},
+    {w:'opt',p:'/ɑpt/',m:'v. 选择，决定',s:false},
+    {w:'optimistic',p:'/ˌɑptɪˈmɪstɪk/',m:'adj. 乐观的',s:true},
+    {w:'option',p:'/ˈɑpʃən/',m:'n. 选择，选项',s:false},
+    {w:'orbit',p:'/ˈɔrbɪt/',m:'n. 轨道；v. 绕…运行',s:true},
+    {w:'orchestra',p:'/ˈɔrkɪstrə/',m:'n. 管弦乐队',s:false}
+  ],
+  10: [
+    {w:'orient',p:'/ˈɔriənt/',m:'v. 定位，使适应',s:true},
+    {w:'origin',p:'/ɔrɪdʒn/',m:'n. 起源，出身',s:false},
+    {w:'ornament',p:'/ˈɔrnəmənt/',m:'n. 装饰品；v. 装饰',s:true},
+    {w:'outbreak',p:'/ˈatbreɪk/',m:'n. 爆发，突发',s:false},
+    {w:'outcome',p:'/ˈaʊtkʌm/',m:'n. 结果，成果',s:true},
+    {w:'outlook',p:'/ˈaʊtlʊk/',m:'n. 展望，观点',s:false},
+    {w:'outset',p:'/ˈaʊtset/',m:'n. 开始，开端',s:true},
+    {w:'outstanding',p:'/aʊtˈstændɪŋ/',m:'adj. 杰出的，未解决的',s:false},
+    {w:'overcome',p:'/ˌoʊvərˈkʌm/',m:'v. 克服，战胜',s:true},
+    {w:'overflow',p:'/ˌoʊvərˈfloʊ/',m:'v. 溢出，充满',s:false},
+    {w:'overlap',p:'/ˌoʊvərˈlæp/',m:'v. 重叠，交叠',s:true},
+    {w:'overlook',p:'/ˌoʊvərˈlʊk/',m:'v. 忽视，俯瞰',s:false},
+    {w:'overwhelm',p:'/ˌovərˈwelm/',m:'v. 压倒，淹没',s:true},
+    {w:'owe',p:'/oʊ/',m:'v. 欠，归功于',s:false},
+    {w:'owner',p:'/ˈoʊnər/',m:'n. 所有者，主人',s:true},
+    {w:'oxide',p:'/ɑksaɪd/',m:'n. 氧化物',s:false}
+  ],
+  11: [
+    {w:'pace',p:'/peɪs/',m:'n. 步伐，速度',s:true},
+    {w:'panel',p:'/ˈpænəl/',m:'n. 面板，专家组',s:false},
+    {w:'paradox',p:'/ˈpærədɑks/',m:'n. 悖论，矛盾',s:true},
+    {w:'parallel',p:'/ˈpærəlel/',m:'adj. 平行的；n. 相似',s:false},
+    {w:'parameter',p:'/pəˈræmtər/',m:'n. 参数，界限',s:true},
+    {w:'participant',p:'/pɑrˈtɪsɪpənt/',m:'n. 参与者',s:false},
+    {w:'passion',p:'/ˈpæən/',m:'n. 激情，热情',s:true},
+    {w:'patent',p:'/ˈpætnt/',m:'n. 专利；adj. 明显的',s:false},
+    {w:'peak',p:'/piːk/',m:'n. 顶峰；v. 达到高峰',s:true},
+    {w:'peculiar',p:'/pˈkjuːliər/',m:'adj. 特殊的，奇怪的',s:false},
+    {w:'penalty',p:'/ˈpenəlti/',m:'n. 惩罚，罚款',s:true},
+    {w:'perceive',p:'/pərˈsiːv/',m:'v. 感知，认为',s:false},
+    {w:'percent',p:'/pərˈsent/',m:'n. 百分比',s:true},
+    {w:'perfect',p:'/ˈpɜrfɪkt/',m:'adj. 完美的；v. 完善',s:false},
+    {w:'perform',p:'/pərˈfɔrm/',m:'v. 执行，表演',s:true},
+    {w:'period',p:'/pɪriəd/',m:'n. 时期，周期',s:false}
+  ],
+  12: [
+    {w:'permanent',p:'/ˈpɜrmənənt/',m:'adj. 永久的，持久的',s:true},
+    {w:'permit',p:'/pərˈmɪt/',m:'v. 允许；n. 许可证',s:false},
+    {w:'persist',p:'/pərˈsɪst/',m:'v. 坚持，持续',s:true},
+    {w:'personnel',p:'/pɜrsəˈnel/',m:'n. 人员，人事',s:false},
+    {w:'perspective',p:'/pərˈspektɪv/',m:'n. 观点，透视',s:true},
+    {w:'petition',p:'/pɪˈtɪʃən/',m:'n. 请愿书；v. 请愿',s:false},
+    {w:'phenomenon',p:'/fɪˈnɑmɪnən/',m:'n. 现象',s:true},
+    {w:'philosophy',p:'/fɪˈlɑsəfi/',m:'n. 哲学，人生观',s:false},
+    {w:'physical',p:'/ˈfɪzkəl/',m:'adj. 身体的，物理的',s:true},
+    {w:'pioneer',p:'/ˌpaɪəˈnɪr/',m:'n. 先驱；v. 开拓',s:false},
+    {w:'plague',p:'/pleɪɡ/',m:'n. 瘟疫；v. 困扰',s:true},
+    {w:'platform',p:'/ˈplætfɔrm/',m:'n. 平台，站台',s:false},
+    {w:'plead',p:'/pliːd/',m:'v. 恳求，辩护',s:true},
+    {w:'pledge',p:'/pledʒ/',m:'n./v. 保证，誓言',s:false},
+    {w:'plunge',p:'/plʌndʒ/',m:'v. 投入，骤降',s:true},
+    {w:'pollute',p:'/pəˈluːt/',m:'v. 污染，弄脏',s:false}
+  ],
+  13: [
+    {w:'ponder',p:'/ˈpɑndər/',m:'v. 沉思，考虑',s:true},
+    {w:'portion',p:'/ˈpɔrʃən/',m:'n. 部分，一份',s:false},
+    {w:'pose',p:'/poʊz/',m:'v. 摆姿势；n. 姿势',s:true},
+    {w:'positive',p:'/pɑzətɪv/',m:'adj. 积极的，肯定的',s:false},
+    {w:'postpone',p:'/poʊspoʊn/',m:'v. 推迟，延期',s:true},
+    {w:'potential',p:'/pəˈtenʃəl/',m:'adj. 潜在的；n. 潜力',s:false},
+    {w:'poverty',p:'/ˈpɑvərti/',m:'n. 贫穷，贫困',s:true},
+    {w:'precede',p:'/prɪsiːd/',m:'v. 先于，领先',s:false},
+    {w:'precise',p:'/prɪˈsaɪs/',m:'adj. 精确的，准确的',s:true},
+    {w:'predator',p:'/ˈpredətər/',m:'n. 捕食者，掠夺者',s:false},
+    {w:'predict',p:'/prɪˈdɪkt/',m:'v. 预测，预言',s:true},
+    {w:'preference',p:'/prefrəns/',m:'n. 偏好，优先',s:false},
+    {w:'prejudice',p:'/ˈpredʒədɪs/',m:'n. 偏见，歧视',s:true},
+    {w:'preliminary',p:'/prɪˈlɪmɪneri/',m:'adj. 初步的，预备的',s:false},
+    {w:'premise',p:'/ˈpremɪs/',m:'n. 前提，假设',s:true},
+    {w:'premium',p:'/priːmiəm/',m:'n. 溢价，奖金',s:false}
+  ],
+  14: [
+    {w:'prescribe',p:'/prɪskraɪb/',m:'v. 开处方，规定',s:true},
+    {w:'preserve',p:'/prɪˈzɜrv/',m:'v. 保护，保存',s:false},
+    {w:'preside',p:'/prɪˈzaɪd/',m:'v. 主持，主管',s:true},
+    {w:'pressure',p:'/ˈpreʃər/',m:'n. 压力，压强',s:false},
+    {w:'pretend',p:'/prɪˈtend/',m:'v. 假装，伪装',s:true},
+    {w:'prevail',p:'/prɪˈveɪl/',m:'v. 盛行，获胜',s:false},
+    {w:'previous',p:'/priːviəs/',m:'adj. 以前的，先前的',s:true},
+    {w:'primary',p:'/ˈpraɪmeri/',m:'adj. 主要的，初级的',s:false},
+    {w:'principle',p:'/ˈprɪnsəpəl/',m:'n. 原则，原理',s:true},
+    {w:'priority',p:'/praɪˈɔrəti/',m:'n. 优先，优先权',s:false},
+    {w:'privilege',p:'/ˈprɪvəldʒ/',m:'n. 特权，优待',s:true},
+    {w:'procedure',p:'/prəˈsiːdʒər/',m:'n. 程序，手续',s:false},
+    {w:'proceed',p:'/proʊsiːd/',m:'v. 进行，继续',s:true},
+    {w:'proclaim',p:'/proʊkleɪm/',m:'v. 宣布，声明',s:false},
+    {w:'productive',p:'/prəˈdʌktɪv/',m:'adj. 多产的，有效的',s:true},
+    {w:'profession',p:'/prəˈfeʃən/',m:'n. 职业，专业',s:false}
+  ],
+  15: [
+    {w:'profile',p:'/proʊfaɪl/',m:'n. 轮廓，简介',s:true},
+    {w:'profit',p:'/prɑfɪt/',m:'n. 利润，收益',s:false},
+    {w:'profound',p:'/prəˈfaʊnd/',m:'adj. 深刻的，渊博的',s:true},
+    {w:'progress',p:'/ˈprɑɡres/',m:'n. 进步；v. 前进',s:false},
+    {w:'prohibit',p:'/proʊˈhɪbɪt/',m:'v. 禁止，阻止',s:true},
+    {w:'project',p:'/ˈprɑdʒekt/',m:'n. 项目；v. 投射',s:false},
+    {w:'prominent',p:'/ˈprɑmɪnənt/',m:'adj. 突出的，显著的',s:true},
+    {w:'promise',p:'/ˈprɑmɪs/',m:'v./n. 承诺，希望',s:false},
+    {w:'promote',p:'/prəˈmoʊt/',m:'v. 促进，提升',s:true},
+    {w:'prompt',p:'/prɑmpt/',m:'v. 促使；adj. 迅速的',s:false},
+    {w:'propaganda',p:'/ˌprɑpəˈɡændə/',m:'n. 宣传，鼓吹',s:true},
+    {w:'propel',p:'/prəˈpel/',m:'v. 推进，驱使',s:false},
+    {w:'proper',p:'/ˈprɑpər/',m:'adj. 适当的，正确的',s:true},
+    {w:'property',p:'/ˈprɑpərti/',m:'n. 财产，属性',s:false},
+    {w:'proportion',p:'/prəˈpɔrʃən/',m:'n. 比例，部分',s:true},
+    {w:'propose',p:'/prəˈpoʊz/',m:'v. 提议，求婚',s:false}
+  ],
+  16: [
+    {w:'prospect',p:'/ˈprɑspekt/',m:'n. 前景，展望',s:true},
+    {w:'prosper',p:'/ˈprɑspər/',m:'v. 繁荣，成功',s:false},
+    {w:'protein',p:'/ˈproʊtin/',m:'n. 蛋白质',s:true},
+    {w:'protest',p:'/proʊtest/',m:'v./n. 抗议，反对',s:false},
+    {w:'provide',p:'/prəˈvaɪd/',m:'v. 提供，供给',s:true},
+    {w:'provoke',p:'/prəˈvoʊk/',m:'v. 激怒，引起',s:false},
+    {w:'prudent',p:'/ˈpruːdnt/',m:'adj. 谨慎的，精明的',s:true},
+    {w:'psychology',p:'/saɪkɑlədʒi/',m:'n. 心理学',s:false},
+    {w:'public',p:'/ˈpʌblk/',m:'adj. 公共的；n. 公众',s:true},
+    {w:'publish',p:'/ˈpʌblɪʃ/',m:'v. 出版，发表',s:false},
+    {w:'pulse',p:'/pʌls/',m:'n. 脉搏，脉冲',s:true},
+    {w:'purchase',p:'/ˈpɜrtʃəs/',m:'v./n. 购买',s:false},
+    {w:'pursue',p:'/pərˈsuː/',m:'v. 追求，追赶',s:true},
+    {w:'qualify',p:'/ˈkwɑlɪfaɪ/',m:'v. 使合格，限定',s:false},
+    {w:'quantity',p:'/ˈkwɑntəti/',m:'n. 数量，大量',s:true},
+    {w:'quarter',p:'/ˈkwɔrtər/',m:'n. 四分之一，季度',s:false}
+  ],
+  17: [
+    {w:'radar',p:'/reɪdɑr/',m:'n. 雷达',s:true},
+    {w:'random',p:'/ˈrændəm/',m:'adj. 随机的',s:false},
+    {w:'range',p:'/reɪndʒ/',m:'n. 范围；v. 排列',s:true},
+    {w:'rank',p:'/ræŋk/',m:'n. 排名；v. 排列',s:false},
+    {w:'rare',p:'/rer/',m:'adj. 稀有的，罕见的',s:true},
+    {w:'ratio',p:'/reɪʃioʊ/',m:'n. 比率，比例',s:false},
+    {w:'rational',p:'/ˈræʃənəl/',m:'adj. 理性的，合理的',s:true},
+    {w:'react',p:'/riˈækt/',m:'v. 反应，回应',s:false},
+    {w:'realize',p:'/ˈriːəlaɪz/',m:'v. 实现，意识到',s:true},
+    {w:'reap',p:'/riːp/',m:'v. 收割，获得',s:false},
+    {w:'reason',p:'/ˈriːzən/',m:'n. 理由；v. 推理',s:true},
+    {w:'rebel',p:'/ˈrebl/',m:'n. 反叛者；v. 反叛',s:false},
+    {w:'recall',p:'/rɪˈkɔl/',m:'v. 回忆，召回',s:true},
+    {w:'receive',p:'/rɪˈsiːv/',m:'v. 接收，收到',s:false},
+    {w:'reckon',p:'/ˈrekən/',m:'v. 认为，计算',s:true},
+    {w:'recognize',p:'/ˈrekəɡnaɪz/',m:'v. 认出，承认',s:false}
+  ],
+  18: [
+    {w:'recommend',p:'/ˌrekəˈmend/',m:'v. 推荐，建议',s:true},
+    {w:'recover',p:'/rɪˈkʌvər/',m:'v. 恢复，重新获得',s:false},
+    {w:'recruit',p:'/rɪˈkruːt/',m:'v. 招募；n. 新兵',s:true},
+    {w:'reduce',p:'/rɪˈduːs/',m:'v. 减少，降低',s:false},
+    {w:'refer',p:'/rɪˈfɜr/',m:'v. 参考，涉及',s:true},
+    {w:'reflect',p:'/rɪˈflekt/',m:'v. 反映，反射',s:false},
+    {w:'reform',p:'/rɪˈfɔrm/',m:'v./n. 改革，改良',s:true},
+    {w:'refuge',p:'/refjuːdʒ/',m:'n. 避难所，庇护',s:false},
+    {w:'refuse',p:'/rɪˈfjuːz/',m:'v. 拒绝；n. 垃圾',s:true},
+    {w:'regard',p:'/rɪˈɡɑrd/',m:'v. 看待；n. 尊重',s:false},
+    {w:'regime',p:'/reɪˈʒiːm/',m:'n. 政权，制度',s:true},
+    {w:'region',p:'/ˈriːdʒən/',m:'n. 地区，区域',s:false},
+    {w:'register',p:'/ˈredʒɪstər/',m:'v. 注册，登记',s:true},
+    {w:'regret',p:'/rɪˈɡret/',m:'v./n. 后悔，遗憾',s:false},
+    {w:'regulate',p:'/ˈreɡjuleɪt/',m:'v. 调节，管理',s:true},
+    {w:'reinforce',p:'/ˌriːnˈfɔrs/',m:'v. 加强，增援',s:false}
+  ],
+  19: [
+    {w:'reject',p:'/rɪdʒekt/',m:'v. 拒绝，排斥',s:true},
+    {w:'relate',p:'/rɪˈleɪt/',m:'v. 联系，叙述',s:false},
+    {w:'release',p:'/rɪˈliːs/',m:'v. 释放，发布',s:true},
+    {w:'relevant',p:'/reləvənt/',m:'adj. 相关的，切题的',s:false},
+    {w:'relief',p:'/rɪˈliːf/',m:'n. 缓解，救济',s:true},
+    {w:'reluctant',p:'/rɪlʌktənt/',m:'adj. 不情愿的',s:false},
+    {w:'rely',p:'/rɪˈlaɪ/',m:'v. 依赖，依靠',s:true},
+    {w:'remain',p:'/rɪˈmeɪn/',m:'v. 保持，剩余',s:false},
+    {w:'remark',p:'/rɪˈmɑrk/',m:'v. 评论；n. 备注',s:true},
+    {w:'remedy',p:'/ˈremədi/',m:'n. 补救；v. 治疗',s:false},
+    {w:'remind',p:'/rɪˈmaɪnd/',m:'v. 提醒，使想起',s:true},
+    {w:'remote',p:'/rɪˈmoʊt/',m:'adj. 遥远的，远程的',s:false},
+    {w:'remove',p:'/rɪˈmuːv/',m:'v. 移除，去掉',s:true},
+    {w:'render',p:'/ˈrendər/',m:'v. 使成为，渲染',s:false},
+    {w:'renew',p:'/rɪˈnuː/',m:'v. 更新，恢复',s:true},
+    {w:'rent',p:'/rent/',m:'v./n. 租用，租金',s:false}
+  ],
+  20: [
+    {w:'replace',p:'/rɪˈpleɪs/',m:'v. 替换，取代',s:true},
+    {w:'represent',p:'/reprɪˈzent/',m:'v. 代表，表示',s:false},
+    {w:'reproduce',p:'/ˌriːprəˈduːs/',m:'v. 繁殖，复制',s:true},
+    {w:'reputation',p:'/ˌrepjuˈteɪʃən/',m:'n. 名声，名誉',s:false},
+    {w:'request',p:'/rɪˈkwest/',m:'v./n. 请求，要求',s:true},
+    {w:'require',p:'/rɪˈkwaɪər/',m:'v. 需要，要求',s:false},
+    {w:'rescue',p:'/ˈreskjuː/',m:'v./n. 营救，救援',s:true},
+    {w:'research',p:'/ˈriːsrtʃ/',m:'n./v. 研究，调查',s:false},
+    {w:'resemble',p:'/rɪˈzembl/',m:'v. 像，类似',s:true},
+    {w:'reserve',p:'/rɪˈzrv/',m:'v. 保留；n. 储备',s:false},
+    {w:'resign',p:'/rɪˈzaɪn/',m:'v. 辞职，放弃',s:true},
+    {w:'resist',p:'/rɪˈzɪst/',m:'v. 抵抗，抗拒',s:false},
+    {w:'resolve',p:'/rɪˈzɑlv/',m:'v. 解决，决心',s:true},
+    {w:'resource',p:'/ˈriːsɔrs/',m:'n. 资源，资料',s:false},
+    {w:'respond',p:'/rɪˈspɑnd/',m:'v. 回应，回答',s:true},
+    {w:'restore',p:'/rɪˈstɔr/',m:'v. 恢复，修复',s:false}
+  ],
+  21: [
+    {w:'restrict',p:'/rɪˈstrkt/',m:'v. 限制，约束',s:true},
+    {w:'result',p:'/rɪˈzʌlt/',m:'n. 结果；v. 导致',s:false},
+    {w:'retain',p:'/rɪˈteɪn/',m:'v. 保持，保留',s:true},
+    {w:'retire',p:'/rɪˈtaɪər/',m:'v. 退休，退出',s:false},
+    {w:'retreat',p:'/rɪˈtriːt/',m:'v./n. 撤退，退却',s:true},
+    {w:'reveal',p:'/rɪˈviːl/',m:'v. 揭示，显示',s:false},
+    {w:'revenue',p:'/ˈrevənuː/',m:'n. 收入，税收',s:true},
+    {w:'reverse',p:'/rɪˈvɜrs/',m:'v. 反转；adj. 相反的',s:false},
+    {w:'revise',p:'/rɪˈvaɪz/',m:'v. 修订，修改',s:true},
+    {w:'revolt',p:'/rɪˈvoʊlt/',m:'v./n. 反叛，起义',s:false},
+    {w:'revolution',p:'/ˌrevəˈluːʃən/',m:'n. 革命，旋转',s:true},
+    {w:'reward',p:'/rɪˈwɔrd/',m:'n. 奖励；v. 奖赏',s:false},
+    {w:'rhythm',p:'/ˈrɪðəm/',m:'n. 节奏，韵律',s:true},
+    {w:'ridiculous',p:'/rɪdɪkjələs/',m:'adj. 荒谬的，可笑的',s:false},
+    {w:'rigid',p:'/ˈrɪdʒɪd/',m:'adj. 严格的，僵硬的',s:true},
+    {w:'ritual',p:'/ˈrɪtʃuəl/',m:'n. 仪式；adj. 仪式的',s:false}
+  ],
+  22: [
+    {w:'rival',p:'/ˈraɪvəl/',m:'n. 对手；v. 与…匹敌',s:true},
+    {w:'robust',p:'/roʊbʌst/',m:'adj. 强健的，稳健的',s:false},
+    {w:'romantic',p:'/roʊˈmæntɪk/',m:'adj. 浪漫的',s:true},
+    {w:'rotate',p:'/roʊˈteɪt/',m:'v. 旋转，轮流',s:false},
+    {w:'rough',p:'/rʌf/',m:'adj. 粗糙的，粗略的',s:true},
+    {w:'routine',p:'/ruːˈtiːn/',m:'n. 常规；adj. 例行的',s:false},
+    {w:'rural',p:'/ˈrʊrəl/',m:'adj. 农村的，乡村的',s:true},
+    {w:'sacrifice',p:'/ˈsækrɪfaɪs/',m:'v./n. 牺牲，献出',s:false},
+    {w:'sake',p:'/seɪk/',m:'n. 缘故，理由',s:true},
+    {w:'salary',p:'/sæləri/',m:'n. 薪水，工资',s:false},
+    {w:'satellite',p:'/ˈsætəlaɪt/',m:'n. 卫星',s:true},
+    {w:'satisfy',p:'/ˈsætɪsfaɪ/',m:'v. 满足，使满意',s:false},
+    {w:'scale',p:'/skeɪl/',m:'n. 规模，刻度',s:true},
+    {w:'scan',p:'/skæn/',m:'v. 扫描，浏览',s:false},
+    {w:'scatter',p:'/skætər/',m:'v. 分散，散播',s:true},
+    {w:'scenario',p:'/sɪˈnærioʊ/',m:'n. 场景，方案',s:false}
+  ],
+  23: [
+    {w:'schedule',p:'/ˈskedʒuːl/',m:'n. 时间表；v. 安排',s:true},
+    {w:'scheme',p:'/skiːm/',m:'n. 计划，方案',s:false},
+    {w:'scholar',p:'/ˈskɑlər/',m:'n. 学者',s:true},
+    {w:'scope',p:'/skoʊp/',m:'n. 范围，视野',s:false},
+    {w:'secure',p:'/sɪˈkjʊr/',m:'adj. 安全的；v. 获得',s:true},
+    {w:'seek',p:'/siːk/',m:'v. 寻找，追求',s:false},
+    {w:'segment',p:'/ˈseɡmənt/',m:'n. 部分，段',s:true},
+    {w:'seize',p:'/siːz/',m:'v. 抓住，夺取',s:false},
+    {w:'select',p:'/sɪˈlekt/',m:'v. 选择；adj. 精选的',s:true},
+    {w:'senior',p:'/ˈsiːniər/',m:'adj. 高级的；n. 长者',s:false},
+    {w:'sensitive',p:'/ˈsensətɪv/',m:'adj. 敏感的',s:true},
+    {w:'sequence',p:'/ˈsiːkwəns/',m:'n. 顺序，序列',s:false},
+    {w:'series',p:'/ˈsɪriz/',m:'n. 系列，连续',s:true},
+    {w:'severe',p:'/sɪˈvɪr/',m:'adj. 严重的，严厉的',s:false},
+    {w:'shade',p:'/eɪd/',m:'n. 阴凉处；v. 遮蔽',s:true},
+    {w:'shadow',p:'/ˈædoʊ/',m:'n. 阴影，影子',s:false}
+  ],
+  24: [
+    {w:'shallow',p:'/ˈʃælo/',m:'adj. 浅的，肤浅的',s:true},
+    {w:'shelter',p:'/ˈʃeltər/',m:'n. 庇护所；v. 遮蔽',s:false},
+    {w:'shift',p:'/ʃɪft/',m:'v. 转移，改变',s:true},
+    {w:'signal',p:'/ˈsɪɡnəl/',m:'n. 信号；v. 发信号',s:false},
+    {w:'significant',p:'/sɪɡˈnɪfɪkənt/',m:'adj. 重要的，显著的',s:true},
+    {w:'similar',p:'/ˈsɪmɪlər/',m:'adj. 相似的',s:false},
+    {w:'simulate',p:'/ˈsɪmjuleɪt/',m:'v. 模拟，假装',s:true},
+    {w:'sincere',p:'/sɪnˈsɪr/',m:'adj. 真诚的，诚挚的',s:false},
+    {w:'situation',p:'/ˌsɪtʃuˈeɪʃən/',m:'n. 情况，形势',s:true},
+    {w:'skeptical',p:'/ˈskeptɪkəl/',m:'adj. 怀疑的',s:false},
+    {w:'skill',p:'/skɪl/',m:'n. 技能，技巧',s:true},
+    {w:'slight',p:'/slaɪt/',m:'adj. 轻微的；v. 轻视',s:false},
+    {w:'slogan',p:'/ˈsloʊɡən/',m:'n. 口号，标语',s:true},
+    {w:'smooth',p:'/smuːð/',m:'adj. 平滑的，顺利的',s:false},
+    {w:'social',p:'/soʊʃəl/',m:'adj. 社会的，社交的',s:true},
+    {w:'sole',p:'/soʊl/',m:'adj. 唯一的；n. 鞋底',s:false}
+  ],
+  25: [
+    {w:'solid',p:'/sɑlɪd/',m:'adj. 固体的，坚固的',s:true},
+    {w:'solve',p:'/sɑlv/',m:'v. 解决，解答',s:false},
+    {w:'sophisticated',p:'/səˈfɪstɪkeɪtd/',m:'adj. 复杂的，精密的',s:true},
+    {w:'source',p:'/sɔrs/',m:'n. 来源，源头',s:false},
+    {w:'span',p:'/spæn/',m:'n. 跨度；v. 跨越',s:true},
+    {w:'special',p:'/ˈspeʃəl/',m:'adj. 特殊的，专门的',s:false},
+    {w:'species',p:'/spiːʃiːz/',m:'n. 物种，种类',s:true},
+    {w:'specific',p:'/spɪˈsɪfɪk/',m:'adj. 具体的，特定的',s:false},
+    {w:'spectacle',p:'/ˈspektəkəl/',m:'n. 奇观，景象',s:true},
+    {w:'sphere',p:'/sfɪr/',m:'n. 球体，领域',s:false},
+    {w:'spine',p:'/spaɪn/',m:'n. 脊柱，书脊',s:true},
+    {w:'spirit',p:'/spɪrɪt/',m:'n. 精神，灵魂',s:false},
+    {w:'split',p:'/splɪt/',m:'v. 分裂，分开',s:true},
+    {w:'sponsor',p:'/ˈspɑnsər/',m:'n. 赞助者；v. 赞助',s:false},
+    {w:'spread',p:'/spred/',m:'v. 传播，展开',s:true},
+    {w:'stable',p:'/steɪbəl/',m:'adj. 稳定的；n. 马厩',s:false}
+  ],
+  26: [
+    {w:'staff',p:'/stæf/',m:'n. 员工，全体职员',s:true},
+    {w:'stage',p:'/steɪdʒ/',m:'n. 舞台，阶段',s:false},
+    {w:'stake',p:'/steɪk/',m:'n. 赌注，利害关系',s:true},
+    {w:'standard',p:'/stændərd/',m:'n. 标准；adj. 标准的',s:false},
+    {w:'status',p:'/ˈsteɪtəs/',m:'n. 地位，状态',s:true},
+    {w:'steady',p:'/ˈstedi/',m:'adj. 稳定的，稳固的',s:false},
+    {w:'stimulate',p:'/ˈstɪmjuleɪt/',m:'v. 刺激，激励',s:true},
+    {w:'strategy',p:'/strætədʒi/',m:'n. 策略，战略',s:false},
+    {w:'stress',p:'/stres/',m:'n. 压力；v. 强调',s:true},
+    {w:'structure',p:'/strʌktʃər/',m:'n. 结构，构造',s:false},
+    {w:'submit',p:'/səbˈmɪt/',m:'v. 提交，服从',s:true},
+    {w:'substance',p:'/ˈsʌbstəns/',m:'n. 物质，实质',s:false},
+    {w:'substitute',p:'/ˈsʌbsttuːt/',m:'v. 替代；n. 替代品',s:true},
+    {w:'succeed',p:'/səkˈsiːd/',m:'v. 成功，继承',s:false},
+    {w:'sufficient',p:'/səˈfɪʃnt/',m:'adj. 足够的，充分的',s:true},
+    {w:'summit',p:'/ˈsʌmt/',m:'n. 顶峰，峰会',s:false}
+  ]
+};
+var _currentListNum = 8;
+var currentListVocab = allVocab[_currentListNum];
 var _defaultSpell=['radiate','radical','object','oblige'];
 var _savedSpell=null;
 try{_savedSpell=localStorage.getItem('spellSet_list8');}catch(e){}
@@ -1404,7 +1857,7 @@ function syncStoryWordColors(){
 }
 function renderAllWords(){
   var html='';
-  allVocab.forEach(function(item){
+  currentListVocab.forEach(function(item){
     var isSpell=spellSet.has(item.w);
     html+='<div class="vocab-row" data-word="'+item.w+'" onclick="toggleSpellWord(&apos;'+item.w+'&apos;)" style="'+(isSpell?'background:#fff8e8;':'')+'">';
     html+='<div class="vocab-check'+(isSpell?' key-done':'')+'">'+(isSpell?'✓':'')+'</div>';
@@ -1414,7 +1867,7 @@ function renderAllWords(){
   });
   document.getElementById('allWords').innerHTML=html;
   document.getElementById('spellCount').textContent=spellSet.size;
-  document.getElementById('recogCount').textContent=allVocab.length-spellSet.size;
+  document.getElementById('recogCount').textContent=currentListVocab.length-spellSet.size;
 }
 function toggleSpellWord(word){
   if(spellSet.has(word))spellSet.delete(word);
@@ -1587,7 +2040,7 @@ renderMcqBatch();
 var spellBatchIdx=0,spellBatchSize=4,spellTotalCorrect=0,spellTotalWrong=0,spellWords=[];
 var spellAnswers={};
 function initSpellTest(){
-  spellWords=allVocab.filter(function(v){return spellSet.has(v.w);});
+  spellWords=currentListVocab.filter(function(v){return spellSet.has(v.w);});
   var emptyEl=document.getElementById('spellEmpty');
   var contentEl=document.getElementById('spellContent');
   if(!emptyEl||!contentEl)return;
@@ -1647,10 +2100,10 @@ function renderSpellBatch(){
         // 更新全局进度
         var doneCount = 0, activeCount = 0, learnedWords = 0;
         listCards.forEach(function(c) {
-          if (c.cls === 'done') { doneCount++; learnedWords += Math.round(140 * c.pct / 100); }
+          if (c.cls === 'done') { doneCount++; learnedWords += Math.round(16 * c.pct / 100); }
           else if (c.cls === 'active') activeCount++;
         });
-        var totalWords = listCards.length * 140;
+        var totalWords = listCards.length * 16;
         var statsBar = document.getElementById('listsStatsBar');
         if (statsBar) {
           statsBar.innerHTML = '<div class="stat-box"><div class="stat-num" style="color:#5a9a6a;">' + doneCount + '</div><div class="stat-label">已完成</div></div><div class="stat-box"><div class="stat-num" style="color:#b83a2a;">' + activeCount + '</div><div class="stat-label">进行中</div></div><div class="stat-box"><div class="stat-num">' + (listCards.length - doneCount - activeCount) + '</div><div class="stat-label">待学习</div></div>';
@@ -1765,13 +2218,13 @@ function updateDashboard() {
   var todayLearned = 0;
   if (todayList && todayList.newList) {
     var card = listCards.find(function(c) { return c.num === todayList.newList; });
-    if (card && card.cls === 'done') todayLearned = 140;
-    else if (card && card.pct > 0) todayLearned = Math.round(140 * card.pct / 100);
+    if (card && card.cls === 'done') todayLearned = 16;
+    else if (card && card.pct > 0) todayLearned = Math.round(16 * card.pct / 100);
   }
   var el3 = document.getElementById('dashTodayLearned');
   if (el3) el3.textContent = todayLearned;
   var el3s = document.getElementById('dashTodayLearnedSub');
-  if (el3s) el3s.textContent = todayLearned >= 140 ? '目标达成 ✓' : '目标 140 词/天';
+  if (el3s) el3s.textContent = todayLearned >= 16 ? '目标达成 ✓' : '目标 16 词/天';
 
   // 4. 复习及时率
   var totalRevLists = 0;
@@ -2091,9 +2544,9 @@ function renderRhythmAnalysis() {
     var v = levels[i];
     if (v > 0.7) {
       var opacity = 0.4 + v * 0.6;
-      html += '<div style="width:calc(14.28% - 3px);aspect-ratio:1;border-radius:3px;background:rgba(122,111,160,' + opacity + ');" title="Day ' + (i+1) + ': ' + Math.round(v * 140) + ' 词"></div>';
+      html += '<div style="width:calc(14.28% - 3px);aspect-ratio:1;border-radius:3px;background:rgba(122,111,160,' + opacity + ');" title="Day ' + (i+1) + ': ' + Math.round(v * 16) + ' 词"></div>';
     } else if (v > 0.3) {
-      html += '<div style="width:calc(14.28% - 3px);aspect-ratio:1;border-radius:3px;background:rgba(122,111,160,' + (0.2 + v * 0.3) + ');" title="Day ' + (i+1) + ': ' + Math.round(v * 140) + ' 词"></div>';
+      html += '<div style="width:calc(14.28% - 3px);aspect-ratio:1;border-radius:3px;background:rgba(122,111,160,' + (0.2 + v * 0.3) + ');" title="Day ' + (i+1) + ': ' + Math.round(v * 16) + ' 词"></div>';
     } else {
       html += '<div style="width:calc(14.28% - 3px);aspect-ratio:1;border-radius:3px;background:#f0ebe5;" title="Day ' + (i+1) + ': 未学习"></div>';
     }
@@ -2103,14 +2556,20 @@ function renderRhythmAnalysis() {
 
 // ===== Wrong Book =====
 var wrongWords = [
-  {w:'oblige', m:'v. 迫使，责成', wrong:'v. 获得，得到', count:3, type:'spell'},
-  {w:'obsession', m:'n. 痴迷，困扰，执念', wrong:'n. 观察，评论', count:2, type:'mcq'},
-  {w:'obscure', m:'adj. 晦涩的，模糊的', wrong:'adj. 明显的', count:2, type:'mcq'},
-  {w:'objective', m:'adj. 客观的；n. 目标', wrong:'adj. 激进的', count:1, type:'mcq'},
-  {w:'obligation', m:'n. 义务，责任', wrong:'n. 物体，目标', count:3, type:'spell'},
-  {w:'obsolete', m:'adj. 过时的，废弃的', wrong:'adj. 明显的', count:1, type:'spell'},
-  {w:'observe', m:'v. 观察，遵守', wrong:'v. 迫使，责成', count:2, type:'spell'},
-  {w:'obtain', m:'v. 获得，得到', wrong:'v. 观察，注意到', count:1, type:'spell'}
+  {w:'oblige', m:'v. 迫使，责成', wrong:'v. 获得，得到', count:3, type:'spell', list:8},
+  {w:'obsession', m:'n. 痴迷，困扰，执念', wrong:'n. 观察，评论', count:2, type:'mcq', list:8},
+  {w:'obscure', m:'adj. 晦涩的，模糊的', wrong:'adj. 明显的', count:2, type:'mcq', list:8},
+  {w:'objective', m:'adj. 客观的；n. 目标', wrong:'adj. 激进的', count:1, type:'mcq', list:8},
+  {w:'obligation', m:'n. 义务，责任', wrong:'n. 物体，目标', count:3, type:'spell', list:8},
+  {w:'abolish', m:'v. 废除，废止', wrong:'v. 建立，创建', count:2, type:'spell', list:1},
+  {w:'abrupt', m:'adj. 突然的，唐突的', wrong:'adj. 平缓的', count:1, type:'mcq', list:1},
+  {w:'access', m:'n. 通道，访问权', wrong:'n. 成功', count:2, type:'spell', list:2},
+  {w:'accomplish', m:'v. 完成，实现', wrong:'v. 开始，启动', count:1, type:'mcq', list:2},
+  {w:'adapt', m:'v. 适应，改编', wrong:'v. 采用，收养', count:2, type:'spell', list:3},
+  {w:'adverse', m:'adj. 不利的，有害的', wrong:'adj. 有益的', count:1, type:'mcq', list:4},
+  {w:'allocate', m:'v. 分配，拨出', wrong:'v. 允许，准许', count:2, type:'spell', list:5},
+  {w:'analyze', m:'v. 分析，解析', wrong:'v. 综合，总结', count:1, type:'mcq', list:6},
+  {w:'appeal', m:'v./n. 呼吁，吸引', wrong:'v. 拒绝，排斥', count:2, type:'spell', list:7}
 ];
 (function(){
   var html='';
@@ -2159,7 +2618,7 @@ var wrongWords = [
     var startDate=document.getElementById('pmStart').value;
     var endDate=document.getElementById('pmEnd').value;
     var listArr=[...selectedLists].sort(function(a,b){return a-b;});
-    studyPlans.push({name:name,status:'active',startAt:startDate,endAt:endDate,lists:listArr,progress:0,doneLists:[],currentList:listArr[0],totalWords:listArr.length*140,learnedWords:0});
+    studyPlans.push({name:name,status:'active',startAt:startDate,endAt:endDate,lists:listArr,progress:0,doneLists:[],currentList:listArr[0],totalWords:listArr.length*16,learnedWords:0});
     renderStudyPlans();
     document.getElementById('planModal').classList.remove('show');
     document.getElementById('pmName').value='';
@@ -2177,7 +2636,25 @@ var listDetailData = [
   {num:5, spellRate:88, recogRate:93, spellProgress:'+16%', recogProgress:'+7%', curveData:[72,78,84,88,88], reviewCount:3},
   {num:6, spellRate:82, recogRate:90, spellProgress:'+14%', recogProgress:'+9%', curveData:[68,74,78,82,82], reviewCount:3},
   {num:7, spellRate:65, recogRate:80, spellProgress:'+5%', recogProgress:'+15%', curveData:[60,62,64,65,65], reviewCount:2},
-  {num:8, spellRate:58, recogRate:89, spellProgress:'+38%', recogProgress:'+47%', curveData:[20,35,48,58,58], reviewCount:3}
+  {num:8, spellRate:58, recogRate:89, spellProgress:'+38%', recogProgress:'+47%', curveData:[20,35,48,58,58], reviewCount:3},
+  {num:9, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:10, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:11, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:12, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:13, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:14, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:15, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:16, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:17, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:18, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:19, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:20, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:21, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:22, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:23, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:24, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:25, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0},
+  {num:26, spellRate:0, recogRate:0, spellProgress:'-', recogProgress:'-', curveData:[0,0,0,0,0], reviewCount:0}
 ];
 
 function initDetailListSelector() {
@@ -2196,6 +2673,19 @@ function renderListDetail(num) {
   num = parseInt(num);
   var data = listDetailData.find(function(d) { return d.num === num; });
   if (!data) return;
+  
+  // 检查是否尚未学习
+  if (data.spellRate === 0 && data.recogRate === 0) {
+    var titleEl = document.getElementById('detailListTitle');
+    if (titleEl) titleEl.textContent = 'List ' + num + ' 成绩单';
+    var subEl = document.getElementById('detailListSubtitle');
+    if (subEl) subEl.textContent = '尚未开始学习';
+    var statsBar = document.getElementById('detailStatsBar');
+    if (statsBar) {
+      statsBar.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#b0a8a0;font-size:14px;">该 List 尚未开始学习<br><span style="font-size:12px;margin-top:8px;display:block;">完成学习后即可查看成绩</span></div>';
+    }
+    return;
+  }
   
   // 更新标题
   var titleEl = document.getElementById('detailListTitle');
