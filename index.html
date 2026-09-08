@@ -380,186 +380,108 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
       </div>
 
       <div id="dashOverview">
-        <h3 id="dashViewTitle" style="font-size:13px;color:#3d3832;margin-bottom:8px;">我的学习</h3>
-        <!-- 核心指标 -->
-        <div class="dash-metrics student-view">
-          <div class="dash-metric">
-            <div class="dash-metric-num" id="dashEffectiveDays" style="color:#5a9a6a;">-</div>
-            <div class="dash-metric-label">有效学习天数</div>
-            <div class="dash-metric-sub" id="dashEffectiveDaysSub">累计 - 天</div>
-            <div class="dash-metric-help" onclick="alert('指标说明：\n有效学习天数 = 完成打卡的天数\n（需完成当日所有新学和复习任务）')">?</div>
-          </div>
-          <div class="dash-metric">
-            <div class="dash-metric-num" id="dashWeakWords" style="color:#b83a2a;">-</div>
-            <div class="dash-metric-label">薄弱词数</div>
-            <div class="dash-metric-sub" id="dashWeakWordsSub">需重点攻克</div>
-            <div class="dash-metric-help" onclick="alert('指标说明：\n薄弱词数 = 错题本中的单词数量\n（连续答对3次后自动移出）')">?</div>
-          </div>
-          <div class="dash-metric">
-            <div class="dash-metric-num" id="dashTodayLearned" style="color:#7a6fa0;">-</div>
-            <div class="dash-metric-label">今日学习量</div>
-            <div class="dash-metric-sub" id="dashTodayLearnedSub">目标 16 词/天</div>
-            <div class="dash-metric-help" onclick="alert('指标说明：\n今日学习量 = 今天新学的单词数\n（完成 Step1-4 后计入）')">?</div>
-          </div>
-          <div class="dash-metric">
-            <div class="dash-metric-num" id="dashReviewOnTime" style="color:#b89a2a;">-</div>
-            <div class="dash-metric-label">复习及时率</div>
-            <div class="dash-metric-sub" id="dashReviewOnTimeSub">艾宾浩斯节奏</div>
-            <div class="dash-metric-help" onclick="alert('指标说明：\n复习及时率 = 按时复习的 List 占比\n（艾宾浩斯节奏：Day+1/+2/+4/+7）')">?</div>
-          </div>
-        </div>
+        <!-- ========== 学生视角 ========== -->
+        <div id="studentView">
+          <h3 style="font-size:13px;color:#3d3832;margin-bottom:8px;">今天的学习</h3>
 
-        <!-- P1-4: 今日学习数据卡片 -->
-        <div class="card dash-section parent-view" id="todayStudyCard" style="display:none;">
-          <div class="dash-section-title">今日学习</div>
-          <div id="todayStudyContent"></div>
-        </div>
+          <!-- 今日任务 -->
+          <div class="card dash-section" style="background:linear-gradient(135deg,#faf8f5,#f0ebe5);">
+            <div class="dash-section-title">今日任务</div>
+            <div id="studentTodayTask"></div>
+          </div>
 
-        <!-- 26 List 进度条 -->
-        <div class="card dash-section">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <div class="dash-section-title" style="margin-bottom:0;">26 Lists 学习进度</div>
-            <select id="listSelector" style="font-size:10px;padding:4px 8px;border:1px solid #e5ddd5;border-radius:6px;background:#fff;color:#706860;cursor:pointer;" onchange="onListSelect(this.value)">
-              <option value="all">全部 Lists</option>
-            </select>
+          <!-- 学习进度 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">我的进度</div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:10px 4px;">
+                <div style="font-size:20px;font-weight:700;color:#5a9a6a;" id="stuDoneLists">7</div>
+                <div style="font-size:9px;color:#b0a8a0;">已完成 Lists</div>
+              </div>
+              <div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:10px 4px;">
+                <div style="font-size:20px;font-weight:700;color:#7a6fa0;" id="stuRemaining">19</div>
+                <div style="font-size:9px;color:#b0a8a0;">剩余 Lists</div>
+              </div>
+              <div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:10px 4px;">
+                <div style="font-size:20px;font-weight:700;color:#b89a2a;" id="stuEstDays">19</div>
+                <div style="font-size:9px;color:#b0a8a0;">预计天数</div>
+              </div>
+            </div>
+            <div style="height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">
+              <div id="stuProgressBar" style="width:27%;height:100%;background:linear-gradient(90deg,#5a9a6a,#7a6fa0);border-radius:3px;"></div>
+            </div>
+            <p style="font-size:9px;color:#b0a8a0;margin-top:4px;text-align:right;">已完成 27%</p>
           </div>
-          <div id="listProgressChart" style="display:flex;gap:3px;align-items:flex-end;height:80px;padding:0 4px;"></div>
-          <div style="display:flex;justify-content:space-between;margin-top:6px;">
-            <span style="font-size:8px;color:#b0a8a0;">List 1</span>
-            <span style="font-size:8px;color:#b0a8a0;">List 26</span>
+
+          <!-- 薄弱词 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">需要攻克的词</div>
+            <div id="studentWeakWords"></div>
+            <button onclick="startWrongReview()" style="width:100%;margin-top:10px;padding:10px;background:#b83a2a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;">开始错题重练</button>
           </div>
-          <div style="display:flex;gap:10px;margin-top:6px;">
-            <span style="font-size:8px;color:#5a9a6a;">■ 已掌握</span>
-            <span style="font-size:8px;color:#b83a2a;">■ 进行中</span>
-            <span style="font-size:8px;color:#e5ddd5;">■ 待学习</span>
+
+          <!-- 连续打卡 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">连续打卡</div>
+            <div id="studentStreak"></div>
           </div>
         </div>
 
-        <!-- P2-2: 预计完成时间 -->
-        <div class="card dash-section student-view" id="estCompletionCard">
-          <div class="dash-section-title">预计完成时间</div>
-          <div id="estCompletionContent"></div>
-        </div>
+        <!-- ========== 家长视角 ========== -->
+        <div id="parentView" style="display:none;">
+          <h3 style="font-size:13px;color:#3d3832;margin-bottom:8px;">孩子学习报告</h3>
 
-        <!-- 累计词汇量曲线 -->
-        <div class="card dash-section">
-          <div class="dash-section-title">累计词汇量趋势</div>
-          <svg viewBox="0 0 300 140" style="width:100%;height:auto;display:block;">
-            <defs>
-              <linearGradient id="areaGradDash" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#7a6fa0" stop-opacity="0.2"/>
-                <stop offset="100%" stop-color="#7a6fa0" stop-opacity="0.02"/>
-              </linearGradient>
-            </defs>
-            <!-- Grid lines -->
-            <line x1="30" y1="10" x2="30" y2="110" stroke="#e5ddd5" stroke-width="0.5"/>
-            <line x1="30" y1="110" x2="285" y2="110" stroke="#e5ddd5" stroke-width="0.5"/>
-            <line x1="30" y1="85" x2="285" y2="85" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>
-            <line x1="30" y1="60" x2="285" y2="60" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>
-            <line x1="30" y1="35" x2="285" y2="35" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>
-            <!-- Y axis labels -->
-            <text x="26" y="113" font-size="7" fill="#b0a8a0" text-anchor="end">0</text>
-            <text x="26" y="88" font-size="7" fill="#b0a8a0" text-anchor="end">1000</text>
-            <text x="26" y="63" font-size="7" fill="#b0a8a0" text-anchor="end">2000</text>
-            <text x="26" y="38" font-size="7" fill="#b0a8a0" text-anchor="end">3000</text>
-            <text x="26" y="13" font-size="7" fill="#b0a8a0" text-anchor="end">3500</text>
-            <!-- Target line -->
-            <line x1="30" y1="22" x2="285" y2="22" stroke="#b83a2a" stroke-width="0.5" stroke-dasharray="4,3"/>
-            <text x="289" y="25" font-size="7" fill="#b83a2a" font-weight="600">目标 3500</text>
-            <!-- Area -->
-            <polygon points="30,110 30,110 55,107 80,104 105,100 130,96 155,92 180,88 205,83 205,110" fill="url(#areaGradDash)"/>
-            <!-- Line -->
-            <polyline points="30,110 55,107 80,104 105,100 130,96 155,92 180,88 205,83" fill="none" stroke="#7a6fa0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <!-- Data points -->
-            <circle cx="30" cy="110" r="2.5" fill="#7a6fa0" stroke="#fff" stroke-width="1"/>
-            <circle cx="205" cy="83" r="3" fill="#7a6fa0" stroke="#fff" stroke-width="1.5"/>
-            <text x="205" y="77" font-size="8" fill="#7a6fa0" text-anchor="middle" font-weight="700">962</text>
-            <!-- X axis labels -->
-            <text x="30" y="122" font-size="7" fill="#b0a8a0" text-anchor="middle">Day1</text>
-            <text x="105" y="122" font-size="7" fill="#b0a8a0" text-anchor="middle">Day4</text>
-            <text x="180" y="122" font-size="7" fill="#b0a8a0" text-anchor="middle">Day7</text>
-            <text x="205" y="132" font-size="7" fill="#3d3832" text-anchor="middle" font-weight="600">今天</text>
-          </svg>
-        </div>
+          <!-- 一句话总结 -->
+          <div class="card dash-section" style="background:linear-gradient(135deg,#faf8f5,#f0ebe5);">
+            <div id="parentSummary" style="font-size:13px;color:#3d3832;line-height:1.6;"></div>
+          </div>
 
-        <!-- 错题趋势 -->
-        <div class="card dash-section">
-          <div class="dash-section-title">错题趋势（近7天）</div>
-          <svg viewBox="0 0 300 100" style="width:100%;height:auto;display:block;">
-            <line x1="30" y1="80" x2="285" y2="80" stroke="#e5ddd5" stroke-width="0.5"/>
-            <line x1="30" y1="55" x2="285" y2="55" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>
-            <line x1="30" y1="30" x2="285" y2="30" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>
-            <text x="26" y="83" font-size="7" fill="#b0a8a0" text-anchor="end">0</text>
-            <text x="26" y="58" font-size="7" fill="#b0a8a0" text-anchor="end">10</text>
-            <text x="26" y="33" font-size="7" fill="#b0a8a0" text-anchor="end">20</text>
-            <!-- New errors bar (red) -->
-            <rect x="42" y="45" width="14" height="35" rx="2" fill="#f5d5d5"/>
-            <rect x="42" y="45" width="14" height="35" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="78" y="50" width="14" height="30" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="114" y="55" width="14" height="25" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="150" y="60" width="14" height="20" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="186" y="62" width="14" height="18" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="222" y="65" width="14" height="15" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <rect x="258" y="68" width="14" height="12" rx="2" fill="#b83a2a" opacity="0.7"/>
-            <!-- Corrected line (green) -->
-            <polyline points="49,70 85,65 121,58 157,52 193,48 229,42 265,38" fill="none" stroke="#5a9a6a" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4,2"/>
-            <!-- X labels -->
-            <text x="49" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day2</text>
-            <text x="85" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day3</text>
-            <text x="121" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day4</text>
-            <text x="157" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day5</text>
-            <text x="193" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day6</text>
-            <text x="229" y="92" font-size="7" fill="#b0a8a0" text-anchor="middle">Day7</text>
-            <text x="265" y="92" font-size="7" fill="#3d3832" text-anchor="middle" font-weight="600">今天</text>
-          </svg>
-          <div style="display:flex;gap:12px;margin-top:4px;">
-            <span style="font-size:8px;color:#b83a2a;">■ 新增错题</span>
-            <span style="font-size:8px;color:#5a9a6a;">- - 纠正移出</span>
+          <!-- 本周学习情况 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">本周学习情况</div>
+            <div id="parentWeekStats"></div>
+          </div>
+
+          <!-- 需要关注 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">需要关注</div>
+            <div id="parentAlerts"></div>
+          </div>
+
+          <!-- 完成进度 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">完成进度</div>
+            <div id="parentProgress"></div>
           </div>
         </div>
 
-        <!-- 7日正确率趋势 -->
-        <div class="card dash-section">
-          <div class="dash-section-title">7日正确率趋势</div>
-          <div id="accuracyTrendChart"></div>
-          <div style="display:flex;gap:10px;margin-top:6px;">
-            <span style="font-size:8px;color:#b83a2a;">■ 拼写词</span>
-            <span style="font-size:8px;color:#7a6fa0;">■ 认识词</span>
-            <span style="font-size:8px;color:#5a9a6a;">- - 目标线 80%</span>
+        <!-- ========== 老师视角 ========== -->
+        <div id="teacherView" style="display:none;">
+          <h3 style="font-size:13px;color:#3d3832;margin-bottom:8px;">教学数据概览</h3>
+
+          <!-- 整体进度 -->
+          <div class="card dash-section" style="background:linear-gradient(135deg,#faf8f5,#f0ebe5);">
+            <div class="dash-section-title">整体进度</div>
+            <div id="teacherOverall"></div>
           </div>
-        </div>
 
-        <!-- 薄弱词 Top 5 -->
-        <div class="card dash-section">
-          <div class="dash-section-title">薄弱词 Top 5</div>
-          <div id="weakWordsTop5"></div>
-          <p style="font-size:9px;color:#b0a8a0;margin-top:6px;">连续答对 3 次后自动移出错题本</p>
-        </div>
-
-        <!-- 各 List 正确率对比 -->
-        <div class="card dash-section teacher-view" style="display:none;">
-          <div class="dash-section-title">各 List 正确率对比</div>
-          <div id="listAccuracyChart"></div>
-        </div>
-
-        <!-- 学习日历热力图 -->
-        <div class="card dash-section">
-          <div class="dash-section-title">学习日历（近26天）</div>
-          <div id="heatMap" style="display:flex;flex-wrap:wrap;gap:3px;"></div>
-          <div style="display:flex;gap:8px;margin-top:6px;align-items:center;">
-            <span style="font-size:8px;color:#b0a8a0;">少</span>
-            <div style="width:12px;height:12px;border-radius:2px;background:#f0ebe5;"></div>
-            <div style="width:12px;height:12px;border-radius:2px;background:#d8d0e8;"></div>
-            <div style="width:12px;height:12px;border-radius:2px;background:#9b92b8;"></div>
-            <div style="width:12px;height:12px;border-radius:2px;background:#7a6fa0;"></div>
-            <span style="font-size:8px;color:#b0a8a0;">多</span>
+          <!-- List 难度分布 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">各 List 正确率</div>
+            <div id="teacherListAccuracy"></div>
           </div>
-        </div>
 
-        <!-- P2-3: 学习节奏分析 -->
-        <div class="card dash-section student-view">
-          <div class="dash-section-title">学习节奏分析</div>
-          <div id="rhythmAnalysis"></div>
+          <!-- 高频错词 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">高频错词 Top 10</div>
+            <div id="teacherTopErrors"></div>
+          </div>
+
+          <!-- 复习节奏 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">复习节奏</div>
+            <div id="teacherReviewPace"></div>
+          </div>
         </div>
       </div>
 
@@ -2429,15 +2351,23 @@ function switchView(view) {
   _currentView = view;
   document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
-  var studentOnly = document.querySelectorAll('.student-view');
-  var parentOnly = document.querySelectorAll('.parent-view');
-  var teacherOnly = document.querySelectorAll('.teacher-view');
-  studentOnly.forEach(function(el) { el.style.display = view === 'student' ? '' : 'none'; });
-  parentOnly.forEach(function(el) { el.style.display = view === 'parent' ? '' : 'none'; });
-  teacherOnly.forEach(function(el) { el.style.display = view === 'teacher' ? '' : 'none'; });
-  var title = view === 'student' ? '我的学习' : (view === 'parent' ? '孩子学习报告' : '班级数据概览');
-  var el = document.getElementById('dashViewTitle');
-  if (el) el.textContent = title;
+
+  // Hide all views
+  document.getElementById('studentView').style.display = 'none';
+  document.getElementById('parentView').style.display = 'none';
+  document.getElementById('teacherView').style.display = 'none';
+
+  // Show selected view and render
+  if (view === 'student') {
+    document.getElementById('studentView').style.display = '';
+    renderStudentView();
+  } else if (view === 'parent') {
+    document.getElementById('parentView').style.display = '';
+    renderParentView();
+  } else if (view === 'teacher') {
+    document.getElementById('teacherView').style.display = '';
+    renderTeacherView();
+  }
 }
 
 // P2-2: 预计完成时间
@@ -2499,6 +2429,339 @@ function renderRhythmAnalysis() {
   html += '<strong style="color:#7a6fa0;">建议：</strong>' + advice;
   html += '</div>';
   container.innerHTML = html;
+}
+
+// ===== 三视角渲染函数 =====
+
+// 学生视角：今天要做什么？进度怎样？
+function renderStudentView() {
+  // 今日任务
+  var taskEl = document.getElementById('studentTodayTask');
+  if (taskEl) {
+    var todayPlan = calPlan[calToday] || {};
+    var html = '<div style="font-size:12px;color:#3d3832;line-height:1.8;">';
+    if (todayPlan.newList) {
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;border-radius:6px;margin-bottom:6px;">';
+      html += '<span>新学 List ' + todayPlan.newList + '</span>';
+      html += '<span style="font-size:10px;color:#b0a8a0;">16 词 · 约 6 分钟</span>';
+      html += '</div>';
+    }
+    if (todayPlan.rev && todayPlan.rev.length > 0) {
+      todayPlan.rev.forEach(function(r) {
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;border-radius:6px;margin-bottom:6px;">';
+        html += '<span>复习 List ' + r + '</span>';
+        html += '<span style="font-size:10px;color:#b0a8a0;">约 3 分钟</span>';
+        html += '</div>';
+      });
+    }
+    if (!todayPlan.newList && (!todayPlan.rev || todayPlan.rev.length === 0)) {
+      html += '<div style="text-align:center;padding:20px;color:#b0a8a0;">今天没有任务</div>';
+    }
+    html += '</div>';
+    taskEl.innerHTML = html;
+  }
+
+  // 进度
+  var doneCount = listCards.filter(function(c) { return c.cls === 'done'; }).length;
+  var remaining = 26 - doneCount;
+  var avgDaysPerList = doneCount > 0 ? Math.max(1, Math.round(calToday / doneCount)) : 1;
+  var estDays = remaining * avgDaysPerList;
+  var doneEl = document.getElementById('stuDoneLists');
+  if (doneEl) doneEl.textContent = doneCount;
+  var remEl = document.getElementById('stuRemaining');
+  if (remEl) remEl.textContent = remaining;
+  var estEl = document.getElementById('stuEstDays');
+  if (estEl) estEl.textContent = estDays;
+  var barEl = document.getElementById('stuProgressBar');
+  if (barEl) barEl.style.width = Math.round(doneCount / 26 * 100) + '%';
+
+  // 薄弱词
+  var weakEl = document.getElementById('studentWeakWords');
+  if (weakEl) {
+    if (wrongWords.length === 0) {
+      weakEl.innerHTML = '<div style="text-align:center;padding:20px;color:#5a9a6a;font-size:12px;">没有薄弱词，继续保持！</div>';
+    } else {
+      var html = '<div style="font-size:11px;color:#706860;margin-bottom:8px;">' + wrongWords.length + ' 个词需要巩固</div>';
+      wrongWords.slice(0, 5).forEach(function(w) {
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f0ebe5;">';
+        html += '<span style="font-size:12px;font-weight:500;">' + w.w + '</span>';
+        html += '<span style="font-size:10px;color:#b83a2a;">错 ' + w.count + ' 次</span>';
+        html += '</div>';
+      });
+      weakEl.innerHTML = html;
+    }
+  }
+
+  // 连续打卡
+  var streakEl = document.getElementById('studentStreak');
+  if (streakEl) {
+    var streak = 0;
+    for (var d = calToday; d >= 1; d--) {
+      if (dayDoneSet.has(d)) streak++;
+      else break;
+    }
+    var html = '<div style="text-align:center;padding:16px;">';
+    html += '<div style="font-size:32px;font-weight:700;color:#7a6fa0;margin-bottom:4px;">' + streak + '</div>';
+    html += '<div style="font-size:11px;color:#b0a8a0;">连续打卡天数</div>';
+    html += '<div style="margin-top:12px;height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">';
+    html += '<div style="width:' + Math.min(100, streak * 10) + '%;height:100%;background:linear-gradient(90deg,#7a6fa0,#5a9a6a);border-radius:3px;"></div>';
+    html += '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;margin-top:4px;">累计 ' + dayDoneSet.size + ' 天</div>';
+    html += '</div>';
+    streakEl.innerHTML = html;
+  }
+}
+
+// 家长视角：孩子在学吗？效果怎样？需要我管吗？
+function renderParentView() {
+  // 一句话总结
+  var summaryEl = document.getElementById('parentSummary');
+  if (summaryEl) {
+    var doneCount = listCards.filter(function(c) { return c.cls === 'done'; }).length;
+    var weekDays = 0;
+    for (var d = Math.max(1, calToday - 6); d <= calToday; d++) {
+      if (dayDoneSet.has(d)) weekDays++;
+    }
+    var avgAccuracy = listDetailData.filter(function(d) { return d.spellRate > 0; });
+    var avgRate = avgAccuracy.length > 0 ? Math.round(avgAccuracy.reduce(function(sum, d) { return sum + d.spellRate; }, 0) / avgAccuracy.length) : 0;
+
+    var html = '<div style="font-size:14px;line-height:1.8;">';
+    html += '<div style="margin-bottom:8px;">本周学习了 <strong style="color:#7a6fa0;">' + weekDays + ' 天</strong>，';
+    html += '已完成 <strong style="color:#5a9a6a;">' + doneCount + '/26</strong> 个 List，';
+    html += '平均正确率 <strong style="color:' + (avgRate >= 80 ? '#5a9a6a' : '#b89a2a') + ';">' + avgRate + '%</strong>。</div>';
+
+    if (weekDays >= 5) {
+      html += '<div style="color:#5a9a6a;font-size:12px;">学习节奏很好，请继续保持！</div>';
+    } else if (weekDays >= 3) {
+      html += '<div style="color:#b89a2a;font-size:12px;">学习节奏不错，建议每天坚持打卡。</div>';
+    } else {
+      html += '<div style="color:#b83a2a;font-size:12px;">本周学习天数较少，建议督促孩子每天学习。</div>';
+    }
+    html += '</div>';
+    summaryEl.innerHTML = html;
+  }
+
+  // 本周学习情况
+  var weekEl = document.getElementById('parentWeekStats');
+  if (weekEl) {
+    var html = '<div style="display:flex;gap:8px;margin-bottom:12px;">';
+    var weekDays = 0;
+    var weekWords = 0;
+    for (var d = Math.max(1, calToday - 6); d <= calToday; d++) {
+      if (dayDoneSet.has(d)) {
+        weekDays++;
+        var plan = calPlan[d];
+        if (plan && plan.newList) weekWords += 16;
+      }
+    }
+    html += '<div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:10px;">';
+    html += '<div style="font-size:20px;font-weight:700;color:#7a6fa0;">' + weekDays + '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">学习天数</div>';
+    html += '</div>';
+    html += '<div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:10px;">';
+    html += '<div style="font-size:20px;font-weight:700;color:#5a9a6a;">' + weekWords + '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">新学单词</div>';
+    html += '</div>';
+    html += '</div>';
+
+    // 每日打卡情况
+    html += '<div style="font-size:11px;color:#706860;margin-bottom:6px;">每日打卡</div>';
+    html += '<div style="display:flex;gap:4px;">';
+    for (var d = Math.max(1, calToday - 6); d <= calToday; d++) {
+      var done = dayDoneSet.has(d);
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="width:100%;aspect-ratio:1;background:' + (done ? '#7a6fa0' : '#e5ddd5') + ';border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;">' + (done ? '✓' : '') + '</div>';
+      html += '<div style="font-size:8px;color:#b0a8a0;margin-top:2px;">Day' + d + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+    weekEl.innerHTML = html;
+  }
+
+  // 需要关注
+  var alertsEl = document.getElementById('parentAlerts');
+  if (alertsEl) {
+    var alerts = [];
+
+    // 检查连续未打卡
+    var lastDone = 0;
+    for (var d = calToday; d >= 1; d--) {
+      if (dayDoneSet.has(d)) { lastDone = d; break; }
+    }
+    if (calToday - lastDone > 2) {
+      alerts.push({ type: 'warning', text: '超过 2 天未打卡，请督促孩子学习' });
+    }
+
+    // 检查薄弱词
+    if (wrongWords.length > 10) {
+      alerts.push({ type: 'info', text: '有 ' + wrongWords.length + ' 个薄弱词需要巩固，建议提醒孩子复习错题本' });
+    }
+
+    // 检查复习及时率
+    var totalRev = 0, onTimeRev = 0;
+    for (var d = 1; d <= 26; d++) {
+      var p = calPlan[d];
+      if (p && p.rev) {
+        p.rev.forEach(function(r) {
+          totalRev++;
+          if (dayDoneSet.has(d)) onTimeRev++;
+        });
+      }
+    }
+    var reviewRate = totalRev > 0 ? Math.round(onTimeRev / totalRev * 100) : 100;
+    if (reviewRate < 70) {
+      alerts.push({ type: 'warning', text: '复习及时率较低（' + reviewRate + '%），建议按艾宾浩斯节奏复习' });
+    }
+
+    if (alerts.length === 0) {
+      alertsEl.innerHTML = '<div style="text-align:center;padding:20px;color:#5a9a6a;font-size:12px;">一切正常，无需担心</div>';
+    } else {
+      var html = '';
+      alerts.forEach(function(a) {
+        var color = a.type === 'warning' ? '#b83a2a' : '#b89a2a';
+        var bg = a.type === 'warning' ? '#fef5f5' : '#fef9e5';
+        html += '<div style="padding:10px;background:' + bg + ';border-radius:6px;margin-bottom:6px;font-size:11px;color:' + color + ';line-height:1.6;">';
+        html += a.text;
+        html += '</div>';
+      });
+      alertsEl.innerHTML = html;
+    }
+  }
+
+  // 完成进度
+  var progressEl = document.getElementById('parentProgress');
+  if (progressEl) {
+    var doneCount = listCards.filter(function(c) { return c.cls === 'done'; }).length;
+    var pct = Math.round(doneCount / 26 * 100);
+    var html = '<div style="margin-bottom:8px;">';
+    html += '<div style="display:flex;justify-content:space-between;font-size:11px;color:#706860;margin-bottom:4px;">';
+    html += '<span>已完成 ' + doneCount + '/26 Lists</span>';
+    html += '<span>' + pct + '%</span>';
+    html += '</div>';
+    html += '<div style="height:8px;background:#e5ddd5;border-radius:4px;overflow:hidden;">';
+    html += '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#5a9a6a,#7a6fa0);border-radius:4px;"></div>';
+    html += '</div>';
+    html += '</div>';
+
+    var remaining = 26 - doneCount;
+    var avgDaysPerList = doneCount > 0 ? Math.max(1, Math.round(calToday / doneCount)) : 1;
+    var estDays = remaining * avgDaysPerList;
+    html += '<div style="font-size:10px;color:#b0a8a0;text-align:center;">按当前速度，预计还需 ' + estDays + ' 天完成</div>';
+    progressEl.innerHTML = html;
+  }
+}
+
+// 老师视角：整体怎样？哪些地方难？需要调整教学吗？
+function renderTeacherView() {
+  // 整体进度
+  var overallEl = document.getElementById('teacherOverall');
+  if (overallEl) {
+    var doneCount = listCards.filter(function(c) { return c.cls === 'done'; }).length;
+    var activeCount = listCards.filter(function(c) { return c.cls === 'active'; }).length;
+    var pendingCount = 26 - doneCount - activeCount;
+    var pct = Math.round(doneCount / 26 * 100);
+
+    var html = '<div style="display:flex;gap:8px;margin-bottom:12px;">';
+    html += '<div style="flex:1;text-align:center;background:#fff;border-radius:8px;padding:10px;">';
+    html += '<div style="font-size:20px;font-weight:700;color:#5a9a6a;">' + doneCount + '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">已完成</div>';
+    html += '</div>';
+    html += '<div style="flex:1;text-align:center;background:#fff;border-radius:8px;padding:10px;">';
+    html += '<div style="font-size:20px;font-weight:700;color:#b83a2a;">' + activeCount + '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">进行中</div>';
+    html += '</div>';
+    html += '<div style="flex:1;text-align:center;background:#fff;border-radius:8px;padding:10px;">';
+    html += '<div style="font-size:20px;font-weight:700;color:#b0a8a0;">' + pendingCount + '</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">待开始</div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div style="height:8px;background:#e5ddd5;border-radius:4px;overflow:hidden;">';
+    html += '<div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#5a9a6a,#7a6fa0);border-radius:4px;"></div>';
+    html += '</div>';
+    html += '<div style="font-size:10px;color:#b0a8a0;margin-top:4px;text-align:right;">整体进度 ' + pct + '%</div>';
+    overallEl.innerHTML = html;
+  }
+
+  // 各 List 正确率
+  var accuracyEl = document.getElementById('teacherListAccuracy');
+  if (accuracyEl) {
+    var doneLists = listDetailData.filter(function(d) { return d.spellRate > 0; });
+    if (doneLists.length === 0) {
+      accuracyEl.innerHTML = '<div style="text-align:center;padding:20px;color:#b0a8a0;font-size:11px;">暂无数据</div>';
+    } else {
+      var html = '';
+      doneLists.forEach(function(d) {
+        var avgRate = Math.round((d.spellRate + d.recogRate) / 2);
+        var color = avgRate >= 80 ? '#5a9a6a' : (avgRate >= 60 ? '#b89a2a' : '#b83a2a');
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+        html += '<span style="font-size:10px;color:#706860;width:50px;">List ' + d.num + '</span>';
+        html += '<div style="flex:1;height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">';
+        html += '<div style="width:' + avgRate + '%;height:100%;background:' + color + ';border-radius:3px;"></div>';
+        html += '</div>';
+        html += '<span style="font-size:10px;font-weight:500;color:' + color + ';width:35px;text-align:right;">' + avgRate + '%</span>';
+        html += '</div>';
+      });
+      accuracyEl.innerHTML = html;
+    }
+  }
+
+  // 高频错词
+  var errorsEl = document.getElementById('teacherTopErrors');
+  if (errorsEl) {
+    if (wrongWords.length === 0) {
+      errorsEl.innerHTML = '<div style="text-align:center;padding:20px;color:#5a9a6a;font-size:11px;">没有高频错词</div>';
+    } else {
+      var sorted = wrongWords.slice().sort(function(a, b) { return b.count - a.count; });
+      var html = '';
+      sorted.slice(0, 10).forEach(function(w, i) {
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0ebe5;">';
+        html += '<span style="font-size:10px;color:#b0a8a0;width:20px;">' + (i + 1) + '</span>';
+        html += '<span style="font-size:12px;font-weight:500;flex:1;">' + w.w + '</span>';
+        html += '<span style="font-size:10px;color:#b83a2a;">错 ' + w.count + ' 次</span>';
+        html += '<span style="font-size:9px;color:#b0a8a0;">List ' + w.list + '</span>';
+        html += '</div>';
+      });
+      errorsEl.innerHTML = html;
+    }
+  }
+
+  // 复习节奏
+  var paceEl = document.getElementById('teacherReviewPace');
+  if (paceEl) {
+    var totalRev = 0, onTimeRev = 0;
+    for (var d = 1; d <= 26; d++) {
+      var p = calPlan[d];
+      if (p && p.rev) {
+        p.rev.forEach(function(r) {
+          totalRev++;
+          if (dayDoneSet.has(d)) onTimeRev++;
+        });
+      }
+    }
+    var reviewRate = totalRev > 0 ? Math.round(onTimeRev / totalRev * 100) : 100;
+    var color = reviewRate >= 80 ? '#5a9a6a' : (reviewRate >= 60 ? '#b89a2a' : '#b83a2a');
+
+    var html = '<div style="text-align:center;padding:16px;">';
+    html += '<div style="font-size:32px;font-weight:700;color:' + color + ';margin-bottom:4px;">' + reviewRate + '%</div>';
+    html += '<div style="font-size:11px;color:#706860;margin-bottom:12px;">复习及时率</div>';
+    html += '<div style="height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">';
+    html += '<div style="width:' + reviewRate + '%;height:100%;background:' + color + ';border-radius:3px;"></div>';
+    html += '</div>';
+    html += '<div style="font-size:10px;color:#b0a8a0;margin-top:8px;">艾宾浩斯节奏：Day+1/+2/+4/+7</div>';
+
+    if (reviewRate < 70) {
+      html += '<div style="margin-top:12px;padding:10px;background:#fef5f5;border-radius:6px;font-size:11px;color:#b83a2a;line-height:1.6;">';
+      html += '复习节奏较慢，建议提醒学生按艾宾浩斯曲线及时复习，避免遗忘。';
+      html += '</div>';
+    } else if (reviewRate >= 90) {
+      html += '<div style="margin-top:12px;padding:10px;background:#f5fef5;border-radius:6px;font-size:11px;color:#5a9a6a;line-height:1.6;">';
+      html += '复习节奏良好，学生能按照记忆曲线及时巩固。';
+      html += '</div>';
+    }
+    html += '</div>';
+    paceEl.innerHTML = html;
+  }
 }
 
 // 26 List progress bars
