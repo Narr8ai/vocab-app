@@ -264,6 +264,13 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
 .dash-toggle{display:flex;gap:0;margin-bottom:12px;background:#faf8f5;border:1px solid #e5ddd5;border-radius:8px;overflow:hidden;}
 .dash-toggle-btn{flex:1;padding:8px;text-align:center;font-size:11px;font-weight:500;color:#706860;cursor:pointer;transition:all 0.2s;border:none;background:transparent;}
 .dash-toggle-btn.active{background:#7a6fa0;color:#fff;}
+.dash-metric-help{display:inline-block;width:14px;height:14px;border-radius:50%;background:#e5ddd5;color:#706860;font-size:9px;font-weight:700;text-align:center;line-height:14px;cursor:pointer;margin-top:2px;}
+.dash-metric-help:hover{background:#7a6fa0;color:#fff;}
+.timer-badge{position:fixed;top:70px;right:10px;background:#7a6fa0;color:#fff;font-size:9px;padding:3px 8px;border-radius:10px;z-index:100;display:none;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
+.timer-badge.show{display:block;}
+.view-switcher{display:flex;gap:0;margin-bottom:10px;background:#faf8f5;border:1px solid #e5ddd5;border-radius:8px;overflow:hidden;}
+.view-btn{flex:1;padding:6px;text-align:center;font-size:10px;font-weight:500;color:#706860;cursor:pointer;transition:all 0.2s;border:none;background:transparent;}
+.view-btn.active{background:#b83a2a;color:#fff;}
 </style>
 </head>
 <body>
@@ -366,34 +373,56 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
         <div class="dash-toggle-btn" id="dashBtnDetail" onclick="switchDashView('detail')">单List成绩</div>
       </div>
 
+      <div class="view-switcher">
+        <div class="view-btn active" id="viewStudent" onclick="switchView('student')">学生视角</div>
+        <div class="view-btn" id="viewParent" onclick="switchView('parent')">家长视角</div>
+        <div class="view-btn" id="viewTeacher" onclick="switchView('teacher')">老师视角</div>
+      </div>
+
       <div id="dashOverview">
+        <h3 id="dashViewTitle" style="font-size:13px;color:#3d3832;margin-bottom:8px;">我的学习</h3>
         <!-- 核心指标 -->
-        <div class="dash-metrics">
+        <div class="dash-metrics student-view">
           <div class="dash-metric">
-            <div class="dash-metric-num" id="dashLearned" style="color:#b83a2a;">-</div>
-            <div class="dash-metric-label">已学单词</div>
-            <div class="dash-metric-sub" id="dashLearnedSub">/ 3500</div>
+            <div class="dash-metric-num" id="dashEffectiveDays" style="color:#5a9a6a;">-</div>
+            <div class="dash-metric-label">有效学习天数</div>
+            <div class="dash-metric-sub" id="dashEffectiveDaysSub">累计 - 天</div>
+            <div class="dash-metric-help" onclick="alert('指标说明：\n有效学习天数 = 完成打卡的天数\n（需完成当日所有新学和复习任务）')">?</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" id="dashWrong" style="color:#7a6fa0;">-</div>
-            <div class="dash-metric-label">错题累计</div>
-            <div class="dash-metric-sub" id="dashWrongSub">-</div>
+            <div class="dash-metric-num" id="dashWeakWords" style="color:#b83a2a;">-</div>
+            <div class="dash-metric-label">薄弱词数</div>
+            <div class="dash-metric-sub" id="dashWeakWordsSub">需重点攻克</div>
+            <div class="dash-metric-help" onclick="alert('指标说明：\n薄弱词数 = 错题本中的单词数量\n（连续答对3次后自动移出）')">?</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" id="dashStreak" style="color:#5a9a6a;">-</div>
-            <div class="dash-metric-label">连续天数</div>
-            <div class="dash-metric-sub" id="dashStreakSub">-</div>
+            <div class="dash-metric-num" id="dashTodayLearned" style="color:#7a6fa0;">-</div>
+            <div class="dash-metric-label">今日学习量</div>
+            <div class="dash-metric-sub" id="dashTodayLearnedSub">目标 140 词/天</div>
+            <div class="dash-metric-help" onclick="alert('指标说明：\n今日学习量 = 今天新学的单词数\n（完成 Step1-4 后计入）')">?</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" id="dashAccuracy" style="color:#b89a2a;">-</div>
-            <div class="dash-metric-label">平均正确率</div>
-            <div class="dash-metric-sub" id="dashAccuracySub">-</div>
+            <div class="dash-metric-num" id="dashReviewOnTime" style="color:#b89a2a;">-</div>
+            <div class="dash-metric-label">复习及时率</div>
+            <div class="dash-metric-sub" id="dashReviewOnTimeSub">艾宾浩斯节奏</div>
+            <div class="dash-metric-help" onclick="alert('指标说明：\n复习及时率 = 按时复习的 List 占比\n（艾宾浩斯节奏：Day+1/+2/+4/+7）')">?</div>
           </div>
+        </div>
+
+        <!-- P1-4: 今日学习数据卡片 -->
+        <div class="card dash-section parent-view" id="todayStudyCard" style="display:none;">
+          <div class="dash-section-title">今日学习</div>
+          <div id="todayStudyContent"></div>
         </div>
 
         <!-- 26 List 进度条 -->
         <div class="card dash-section">
-          <div class="dash-section-title">26 Lists 学习进度</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div class="dash-section-title" style="margin-bottom:0;">26 Lists 学习进度</div>
+            <select id="listSelector" style="font-size:10px;padding:4px 8px;border:1px solid #e5ddd5;border-radius:6px;background:#fff;color:#706860;cursor:pointer;" onchange="onListSelect(this.value)">
+              <option value="all">全部 Lists</option>
+            </select>
+          </div>
           <div id="listProgressChart" style="display:flex;gap:3px;align-items:flex-end;height:80px;padding:0 4px;"></div>
           <div style="display:flex;justify-content:space-between;margin-top:6px;">
             <span style="font-size:8px;color:#b0a8a0;">List 1</span>
@@ -404,6 +433,12 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
             <span style="font-size:8px;color:#b83a2a;">■ 进行中</span>
             <span style="font-size:8px;color:#e5ddd5;">■ 待学习</span>
           </div>
+        </div>
+
+        <!-- P2-2: 预计完成时间 -->
+        <div class="card dash-section student-view" id="estCompletionCard">
+          <div class="dash-section-title">预计完成时间</div>
+          <div id="estCompletionContent"></div>
         </div>
 
         <!-- 累计词汇量曲线 -->
@@ -483,8 +518,26 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
           </div>
         </div>
 
-        <!-- 各 List 正确率对比 -->
+        <!-- 7日正确率趋势 -->
         <div class="card dash-section">
+          <div class="dash-section-title">7日正确率趋势</div>
+          <div id="accuracyTrendChart"></div>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <span style="font-size:8px;color:#b83a2a;">■ 拼写词</span>
+            <span style="font-size:8px;color:#7a6fa0;">■ 认识词</span>
+            <span style="font-size:8px;color:#5a9a6a;">- - 目标线 80%</span>
+          </div>
+        </div>
+
+        <!-- 薄弱词 Top 5 -->
+        <div class="card dash-section">
+          <div class="dash-section-title">薄弱词 Top 5</div>
+          <div id="weakWordsTop5"></div>
+          <p style="font-size:9px;color:#b0a8a0;margin-top:6px;">连续答对 3 次后自动移出错题本</p>
+        </div>
+
+        <!-- 各 List 正确率对比 -->
+        <div class="card dash-section teacher-view" style="display:none;">
           <div class="dash-section-title">各 List 正确率对比</div>
           <div id="listAccuracyChart"></div>
         </div>
@@ -501,6 +554,12 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
             <div style="width:12px;height:12px;border-radius:2px;background:#7a6fa0;"></div>
             <span style="font-size:8px;color:#b0a8a0;">多</span>
           </div>
+        </div>
+
+        <!-- P2-3: 学习节奏分析 -->
+        <div class="card dash-section student-view">
+          <div class="dash-section-title">学习节奏分析</div>
+          <div id="rhythmAnalysis"></div>
         </div>
       </div>
 
@@ -594,15 +653,29 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
             <div style="font-size:9px;color:#b83a2a;margin-top:2px;">未掌握</div>
           </div>
         </div>
-        <div style="height:8px;background:#e5ddd5;border-radius:4px;overflow:hidden;display:flex;">
-          <div style="width:58%;background:#5a9a6a;"></div>
-          <div style="width:25%;background:#b89a2a;"></div>
-          <div style="width:17%;background:#b83a2a;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;">
-          <span style="font-size:8px;color:#5a9a6a;">■ 掌握 58%</span>
-          <span style="font-size:8px;color:#b89a2a;">■ 巩固 25%</span>
-          <span style="font-size:8px;color:#b83a2a;">■ 未掌握 17%</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg viewBox="0 0 80 80" style="width:70px;height:70px;flex-shrink:0;">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="#e5ddd5" stroke-width="8"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="#5a9a6a" stroke-width="8" stroke-dasharray="117 201" stroke-dashoffset="0" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="#b89a2a" stroke-width="8" stroke-dasharray="50 201" stroke-dashoffset="-117" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+            <circle cx="40" cy="40" r="32" fill="none" stroke="#b83a2a" stroke-width="8" stroke-dasharray="34 201" stroke-dashoffset="-167" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+            <text x="40" y="38" font-size="12" font-weight="700" fill="#3d3832" text-anchor="middle">58%</text>
+            <text x="40" y="48" font-size="6" fill="#b0a8a0" text-anchor="middle">已掌握</text>
+          </svg>
+          <div style="flex:1;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:10px;color:#5a9a6a;">■ 已掌握 7 词</span>
+              <span style="font-size:10px;color:#b0a8a0;">58%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:10px;color:#b89a2a;">■ 待巩固 3 词</span>
+              <span style="font-size:10px;color:#b0a8a0;">25%</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:10px;color:#b83a2a;">■ 未掌握 2 词</span>
+              <span style="font-size:10px;color:#b0a8a0;">17%</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -891,6 +964,8 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
 
 <div class="word-popup" id="wordPopup"><button class="wp-speak" onclick="speakWord()">&#128266;</button><div class="wp-word" id="wpWord"></div><div class="wp-phonetic" id="wpPhonetic"></div><div class="wp-meaning" id="wpMeaning"></div></div>
 
+<div class="timer-badge" id="timerBadge">学习 00:00</div>
+
 <!-- 新建计划弹窗 (outside phone frame to avoid overflow:hidden clipping) -->
 <div class="modal-overlay" id="planModal">
   <div class="modal-box">
@@ -980,12 +1055,14 @@ function goBack() {
 }
 
 function openSubpage(name, title) {
+  startStudyTimer();
   document.getElementById('subpage-' + name).classList.add('show');
   document.getElementById('navBack').classList.add('show');
   document.getElementById('navTitle').textContent = title;
 }
 
 function closeSubpage(name) {
+  stopStudyTimer();
   document.getElementById('subpage-' + name).classList.remove('show');
   document.getElementById('navBack').classList.remove('show');
   document.getElementById('navTitle').textContent = getActiveTabTitle();
@@ -1249,6 +1326,12 @@ function checkReviewUnlock(){
 }
 checkReviewUnlock();
 updateDashboard();
+initListSelector();
+renderWeakWordsTop5();
+renderAccuracyTrend();
+renderTodayStudy();
+renderEstCompletion();
+renderRhythmAnalysis();
 
 // ===== Wrong Word Review =====
 function startWrongReview(){
@@ -1656,37 +1739,290 @@ function switchDashView(view) {
 }
 
 function updateDashboard() {
-  var learned = 0;
-  listCards.forEach(function(c) {
-    if (c.cls === 'done') learned += Math.round(140 * c.pct / 100);
-  });
-  var el1 = document.getElementById('dashLearned');
-  if (el1) el1.textContent = learned;
-  var el1s = document.getElementById('dashLearnedSub');
-  if (el1s) el1s.textContent = '/ 3500';
+  // 1. 有效学习天数
+  var effectiveDays = dayDoneSet.size;
+  var el1 = document.getElementById('dashEffectiveDays');
+  if (el1) el1.textContent = effectiveDays;
+  var el1s = document.getElementById('dashEffectiveDaysSub');
+  if (el1s) el1s.textContent = '累计 ' + effectiveDays + ' 天';
 
-  var wrongTotal = wrongWords.length;
-  var el2 = document.getElementById('dashWrong');
-  if (el2) el2.textContent = wrongTotal;
-  var el2s = document.getElementById('dashWrongSub');
-  if (el2s) el2s.textContent = '点击查看详情';
+  // 2. 薄弱词数
+  var weakWords = wrongWords.length;
+  var el2 = document.getElementById('dashWeakWords');
+  if (el2) el2.textContent = weakWords;
+  var el2s = document.getElementById('dashWeakWordsSub');
+  if (el2s) el2s.textContent = weakWords > 0 ? '需重点攻克' : '继续保持 ✓';
 
-  var streak = 0;
-  for (var d = calToday; d >= 1; d--) {
-    if (dayDoneSet.has(d)) streak++;
-    else break;
+  // 3. 今日学习量
+  var todayList = calPlan[calToday];
+  var todayLearned = 0;
+  if (todayList && todayList.newList) {
+    var card = listCards.find(function(c) { return c.num === todayList.newList; });
+    if (card && card.cls === 'done') todayLearned = 140;
+    else if (card && card.pct > 0) todayLearned = Math.round(140 * card.pct / 100);
   }
-  var el3 = document.getElementById('dashStreak');
-  if (el3) el3.textContent = streak;
-  var el3s = document.getElementById('dashStreakSub');
-  if (el3s) el3s.textContent = streak > 0 ? '坚持中 🔥' : '今天打卡开始';
+  var el3 = document.getElementById('dashTodayLearned');
+  if (el3) el3.textContent = todayLearned;
+  var el3s = document.getElementById('dashTodayLearnedSub');
+  if (el3s) el3s.textContent = todayLearned >= 140 ? '目标达成 ✓' : '目标 140 词/天';
 
-  var doneLists = listCards.filter(function(c) { return c.cls === 'done' && c.pct > 0; });
-  var avgAcc = doneLists.length > 0 ? Math.round(doneLists.reduce(function(s, c) { return s + c.pct; }, 0) / doneLists.length) : 0;
-  var el4 = document.getElementById('dashAccuracy');
-  if (el4) el4.textContent = avgAcc + '%';
-  var el4s = document.getElementById('dashAccuracySub');
-  if (el4s) el4s.textContent = doneLists.length + ' 个List已测';
+  // 4. 复习及时率
+  var totalRevLists = 0;
+  var onTimeRevLists = 0;
+  for (var d = 1; d <= 26; d++) {
+    var p = calPlan[d];
+    if (p && p.rev) {
+      p.rev.forEach(function(r) {
+        totalRevLists++;
+        if (dayDoneSet.has(d)) onTimeRevLists++;
+      });
+    }
+  }
+  var reviewRate = totalRevLists > 0 ? Math.round(onTimeRevLists / totalRevLists * 100) : 100;
+  var el4 = document.getElementById('dashReviewOnTime');
+  if (el4) el4.textContent = reviewRate + '%';
+  var el4s = document.getElementById('dashReviewOnTimeSub');
+  if (el4s) el4s.textContent = reviewRate >= 80 ? '节奏良好' : '需加强复习';
+}
+
+function initListSelector() {
+  var sel = document.getElementById('listSelector');
+  if (!sel) return;
+  listCards.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c.num;
+    opt.textContent = 'List ' + c.num + (c.cls === 'done' ? ' ✓' : c.cls === 'active' ? ' (进行中)' : '');
+    sel.appendChild(opt);
+  });
+}
+
+// P1-3: 学习时长统计
+var _studyTimer = null;
+var _studySeconds = 0;
+var _totalStudySeconds = 0;
+try { _totalStudySeconds = parseInt(localStorage.getItem('totalStudySeconds')) || 0; } catch(e) {}
+
+function startStudyTimer() {
+  if (_studyTimer) return;
+  document.getElementById('timerBadge').classList.add('show');
+  _studyTimer = setInterval(function() {
+    _studySeconds++;
+    _totalStudySeconds++;
+    var m = Math.floor(_studySeconds / 60);
+    var s = _studySeconds % 60;
+    document.getElementById('timerBadge').textContent = '学习 ' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }, 1000);
+}
+
+function stopStudyTimer() {
+  if (_studyTimer) {
+    clearInterval(_studyTimer);
+    _studyTimer = null;
+    document.getElementById('timerBadge').classList.remove('show');
+    try { localStorage.setItem('totalStudySeconds', _totalStudySeconds); } catch(e) {}
+  }
+  _studySeconds = 0;
+}
+
+function onListSelect(num) {
+  if (num === 'all') {
+    updateDashboard();
+    return;
+  }
+  num = parseInt(num);
+  var card = listCards.find(function(c) { return c.num === num; });
+  if (!card) return;
+
+  // 更新核心指标为选中 List 的数据
+  document.getElementById('dashEffectiveDays').textContent = card.cls === 'done' ? '✓' : '-';
+  document.getElementById('dashEffectiveDaysSub').textContent = card.cls === 'done' ? '已完成' : '未完成';
+
+  document.getElementById('dashWeakWords').textContent = '-';
+  document.getElementById('dashWeakWordsSub').textContent = '选择 List 后显示';
+
+  document.getElementById('dashTodayLearned').textContent = card.pct + '%';
+  document.getElementById('dashTodayLearnedSub').textContent = '掌握率';
+
+  document.getElementById('dashReviewOnTime').textContent = card.cls === 'done' ? '100%' : '0%';
+  document.getElementById('dashReviewOnTimeSub').textContent = card.meta || '-';
+}
+
+function renderWeakWordsTop5() {
+  var container = document.getElementById('weakWordsTop5');
+  if (!container) return;
+  if (wrongWords.length === 0) {
+    container.innerHTML = '<p style="font-size:11px;color:#5a9a6a;text-align:center;padding:10px;">恭喜！暂无薄弱词</p>';
+    return;
+  }
+  var sorted = wrongWords.slice().sort(function(a, b) { return b.count - a.count; });
+  var top5 = sorted.slice(0, 5);
+  var html = '';
+  top5.forEach(function(w, i) {
+    var barWidth = Math.min(100, w.count * 20);
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+    html += '<span style="font-size:9px;color:#b0a8a0;width:14px;">' + (i + 1) + '</span>';
+    html += '<span style="font-size:12px;font-weight:500;color:#3d3832;width:80px;">' + w.w + '</span>';
+    html += '<div style="flex:1;height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">';
+    html += '<div style="width:' + barWidth + '%;height:100%;background:#b83a2a;border-radius:3px;"></div>';
+    html += '</div>';
+    html += '<span style="font-size:9px;color:#b83a2a;width:40px;text-align:right;">错 ' + w.count + ' 次</span>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// P1-1: 7日正确率趋势
+function renderAccuracyTrend() {
+  var container = document.getElementById('accuracyTrendChart');
+  if (!container) return;
+  var days = ['Day2','Day3','Day4','Day5','Day6','Day7','今天'];
+  var spellData = [45, 52, 58, 62, 68, 72, 78];
+  var recogData = [60, 65, 70, 75, 78, 82, 89];
+  var svg = '<svg viewBox="0 0 300 120" style="width:100%;height:auto;display:block;">';
+  svg += '<line x1="30" y1="100" x2="280" y2="100" stroke="#e5ddd5" stroke-width="0.5"/>';
+  svg += '<line x1="30" y1="75" x2="280" y2="75" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+  svg += '<line x1="30" y1="50" x2="280" y2="50" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+  svg += '<line x1="30" y1="25" x2="280" y2="25" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+  svg += '<text x="26" y="103" font-size="7" fill="#b0a8a0" text-anchor="end">0%</text>';
+  svg += '<text x="26" y="78" font-size="7" fill="#b0a8a0" text-anchor="end">33%</text>';
+  svg += '<text x="26" y="53" font-size="7" fill="#b0a8a0" text-anchor="end">66%</text>';
+  svg += '<text x="26" y="28" font-size="7" fill="#b0a8a0" text-anchor="end">100%</text>';
+  var targetY = 100 - (80/100*75);
+  svg += '<line x1="30" y1="'+targetY+'" x2="280" y2="'+targetY+'" stroke="#5a9a6a" stroke-width="0.8" stroke-dasharray="4,3"/>';
+  var spellPoints = '';
+  var recogPoints = '';
+  for (var i = 0; i < 7; i++) {
+    var x = 42 + i * 38;
+    var sy = 100 - (spellData[i]/100*75);
+    var ry = 100 - (recogData[i]/100*75);
+    spellPoints += (i===0?'':' ')+x+','+sy;
+    recogPoints += (i===0?'':' ')+x+','+ry;
+  }
+  svg += '<polyline points="'+spellPoints+'" fill="none" stroke="#b83a2a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  svg += '<polyline points="'+recogPoints+'" fill="none" stroke="#7a6fa0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  for (var i = 0; i < 7; i++) {
+    var x = 42 + i * 38;
+    var sy = 100 - (spellData[i]/100*75);
+    var ry = 100 - (recogData[i]/100*75);
+    svg += '<circle cx="'+x+'" cy="'+sy+'" r="2" fill="#b83a2a" stroke="#fff" stroke-width="0.8"/>';
+    svg += '<circle cx="'+x+'" cy="'+ry+'" r="2" fill="#7a6fa0" stroke="#fff" stroke-width="0.8"/>';
+    svg += '<text x="'+x+'" y="112" font-size="7" fill="'+(i===6?'#3d3832':'#b0a8a0')+'" text-anchor="middle"'+(i===6?' font-weight="600"':'')+'>'+days[i]+'</text>';
+  }
+  svg += '<text x="280" y="'+(100-(spellData[6]/100*75)-6)+'" font-size="7" fill="#b83a2a" text-anchor="end" font-weight="600">'+spellData[6]+'%</text>';
+  svg += '<text x="280" y="'+(100-(recogData[6]/100*75)-6)+'" font-size="7" fill="#7a6fa0" text-anchor="end" font-weight="600">'+recogData[6]+'%</text>';
+  svg += '</svg>';
+  container.innerHTML = svg;
+}
+
+// P1-4: 今日学习数据
+function renderTodayStudy() {
+  var container = document.getElementById('todayStudyContent');
+  if (!container) return;
+  var d = calToday;
+  var p = calPlan[d] || {};
+  var html = '<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  if (p.newList) {
+    var card = listCards.find(function(c) { return c.num === p.newList; });
+    var status = card && card.cls === 'done' ? '已完成' : (card && card.pct > 0 ? '进行中' : '待开始');
+    var statusColor = status === '已完成' ? '#5a9a6a' : (status === '进行中' ? '#b83a2a' : '#b0a8a0');
+    html += '<div style="flex:1;background:#faf8f5;border:1px solid #e5ddd5;border-radius:8px;padding:8px;text-align:center;">';
+    html += '<div style="font-size:10px;color:#b0a8a0;margin-bottom:2px;">新学</div>';
+    html += '<div style="font-size:14px;font-weight:600;color:#b83a2a;">List ' + p.newList + '</div>';
+    html += '<div style="font-size:9px;color:' + statusColor + ';">' + status + '</div>';
+    html += '</div>';
+  }
+  if (p.rev && p.rev.length > 0) {
+    html += '<div style="flex:1;background:#faf8f5;border:1px solid #e5ddd5;border-radius:8px;padding:8px;text-align:center;">';
+    html += '<div style="font-size:10px;color:#b0a8a0;margin-bottom:2px;">复习</div>';
+    html += '<div style="font-size:14px;font-weight:600;color:#7a6fa0;">' + p.rev.length + ' 个List</div>';
+    html += '<div style="font-size:9px;color:#b0a8a0;">List ' + p.rev.map(function(r){return r.list;}).join(',') + '</div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  var totalMin = Math.floor(_totalStudySeconds / 60);
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#faf8f5;border-radius:6px;">';
+  html += '<span style="font-size:10px;color:#706860;">累计学习时长</span>';
+  html += '<span style="font-size:12px;font-weight:600;color:#7a6fa0;">' + totalMin + ' 分钟</span>';
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// P2-1: 多视图模式
+var _currentView = 'student';
+function switchView(view) {
+  _currentView = view;
+  document.querySelectorAll('.view-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+  var studentOnly = document.querySelectorAll('.student-view');
+  var parentOnly = document.querySelectorAll('.parent-view');
+  var teacherOnly = document.querySelectorAll('.teacher-view');
+  studentOnly.forEach(function(el) { el.style.display = view === 'student' ? '' : 'none'; });
+  parentOnly.forEach(function(el) { el.style.display = view === 'parent' ? '' : 'none'; });
+  teacherOnly.forEach(function(el) { el.style.display = view === 'teacher' ? '' : 'none'; });
+  var title = view === 'student' ? '我的学习' : (view === 'parent' ? '孩子学习报告' : '班级数据概览');
+  var el = document.getElementById('dashViewTitle');
+  if (el) el.textContent = title;
+}
+
+// P2-2: 预计完成时间
+function renderEstCompletion() {
+  var container = document.getElementById('estCompletionContent');
+  if (!container) return;
+  var doneCount = 0;
+  listCards.forEach(function(c) { if (c.cls === 'done') doneCount++; });
+  var remaining = listCards.length - doneCount;
+  var avgDaysPerList = doneCount > 0 ? Math.max(1, Math.round(calToday / doneCount)) : 1;
+  var estDays = remaining * avgDaysPerList;
+  var donePct = Math.round(doneCount / listCards.length * 100);
+  var html = '<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  html += '<div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:8px;">';
+  html += '<div style="font-size:18px;font-weight:700;color:#7a6fa0;">' + estDays + '</div>';
+  html += '<div style="font-size:9px;color:#b0a8a0;">预计还需天数</div>';
+  html += '</div>';
+  html += '<div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:8px;">';
+  html += '<div style="font-size:18px;font-weight:700;color:#b83a2a;">' + remaining + '</div>';
+  html += '<div style="font-size:9px;color:#b0a8a0;">剩余 Lists</div>';
+  html += '</div>';
+  html += '<div style="flex:1;text-align:center;background:#faf8f5;border-radius:8px;padding:8px;">';
+  html += '<div style="font-size:18px;font-weight:700;color:#5a9a6a;">' + avgDaysPerList + '</div>';
+  html += '<div style="font-size:9px;color:#b0a8a0;">天/List</div>';
+  html += '</div>';
+  html += '</div>';
+  html += '<div style="height:6px;background:#e5ddd5;border-radius:3px;overflow:hidden;">';
+  html += '<div style="width:' + donePct + '%;height:100%;background:linear-gradient(90deg,#5a9a6a,#7a6fa0);border-radius:3px;transition:width 0.3s;"></div>';
+  html += '</div>';
+  html += '<p style="font-size:9px;color:#b0a8a0;margin-top:4px;text-align:right;">已完成 ' + donePct + '% · 按当前速度预计 ' + estDays + ' 天完成</p>';
+  container.innerHTML = html;
+}
+
+// P2-3: 学习节奏分析
+function renderRhythmAnalysis() {
+  var container = document.getElementById('rhythmAnalysis');
+  if (!container) return;
+  var doneDays = dayDoneSet.size;
+  var totalDays = calToday;
+  var consistency = totalDays > 0 ? Math.round(doneDays / totalDays * 100) : 0;
+  var rhythmType = consistency >= 80 ? '均匀型' : (consistency >= 50 ? '波动型' : '突击型');
+  var rhythmColor = consistency >= 80 ? '#5a9a6a' : (consistency >= 50 ? '#b89a2a' : '#b83a2a');
+  var rhythmEmoji = consistency >= 80 ? '优秀' : (consistency >= 50 ? '良好' : '需改进');
+  var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">';
+  html += '<div style="width:50px;height:50px;border-radius:50%;background:' + rhythmColor + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">' + consistency + '%</div>';
+  html += '<div style="flex:1;">';
+  html += '<div style="font-size:12px;font-weight:500;color:#3d3832;">学习节奏：<span style="color:' + rhythmColor + ';">' + rhythmType + '</span></div>';
+  html += '<div style="font-size:9px;color:#b0a8a0;">出勤率 ' + doneDays + '/' + totalDays + ' 天 · ' + rhythmEmoji + '</div>';
+  html += '</div></div>';
+  var advice = '';
+  if (consistency < 50) {
+    advice = '建议每天固定时间学习，哪怕只学10分钟，保持连续性比单次数额更重要。';
+  } else if (consistency < 80) {
+    advice = '学习节奏不错！试着在状态不好的日子也坚持打卡，哪怕只做一组复习题。';
+  } else {
+    advice = '太棒了！你的学习节奏非常稳定，继续保持！建议适当增加每日学习量。';
+  }
+  html += '<div style="background:#faf8f5;border-radius:6px;padding:8px;font-size:10px;color:#706860;line-height:1.5;">';
+  html += '<strong style="color:#7a6fa0;">建议：</strong>' + advice;
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 // 26 List progress bars
