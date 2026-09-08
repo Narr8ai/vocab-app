@@ -1139,6 +1139,22 @@ renderStudyPlans();
 // ===== Calendar =====
 var calPlan={},calToday=8,calSelected=8;
 var dayDoneSet = new Set([1,2,3,4,5,6,7]);
+var wrongWords = [
+  {w:'oblige', m:'v. 迫使，责成', wrong:'v. 获得，得到', count:3, type:'spell', list:8},
+  {w:'obsession', m:'n. 痴迷，困扰，执念', wrong:'n. 观察，评论', count:2, type:'mcq', list:8},
+  {w:'obscure', m:'adj. 晦涩的，模糊的', wrong:'adj. 明显的', count:2, type:'mcq', list:8},
+  {w:'objective', m:'adj. 客观的；n. 目标', wrong:'adj. 激进的', count:1, type:'mcq', list:8},
+  {w:'obligation', m:'n. 义务，责任', wrong:'n. 物体，目标', count:3, type:'spell', list:8},
+  {w:'abolish', m:'v. 废除，废止', wrong:'v. 建立，创建', count:2, type:'spell', list:1},
+  {w:'abrupt', m:'adj. 突然的，唐突的', wrong:'adj. 平缓的', count:1, type:'mcq', list:1},
+  {w:'access', m:'n. 通道，访问权', wrong:'n. 成功', count:2, type:'spell', list:2},
+  {w:'accomplish', m:'v. 完成，实现', wrong:'v. 开始，启动', count:1, type:'mcq', list:2},
+  {w:'adapt', m:'v. 适应，改编', wrong:'v. 采用，收养', count:2, type:'spell', list:3},
+  {w:'adverse', m:'adj. 不利的，有害的', wrong:'adj. 有益的', count:1, type:'mcq', list:4},
+  {w:'allocate', m:'v. 分配，拨出', wrong:'v. 允许，准许', count:2, type:'spell', list:5},
+  {w:'analyze', m:'v. 分析，解析', wrong:'v. 综合，总结', count:1, type:'mcq', list:6},
+  {w:'appeal', m:'v./n. 呼吁，吸引', wrong:'v. 拒绝，排斥', count:2, type:'spell', list:7}
+];
 function saveDayDone() { try { localStorage.setItem('dayDoneSet', JSON.stringify([...dayDoneSet])); } catch(e){} }
 function markDayDone(d) {
   dayDoneSet.add(d); saveDayDone();
@@ -2555,22 +2571,6 @@ function renderRhythmAnalysis() {
 })();
 
 // ===== Wrong Book =====
-var wrongWords = [
-  {w:'oblige', m:'v. 迫使，责成', wrong:'v. 获得，得到', count:3, type:'spell', list:8},
-  {w:'obsession', m:'n. 痴迷，困扰，执念', wrong:'n. 观察，评论', count:2, type:'mcq', list:8},
-  {w:'obscure', m:'adj. 晦涩的，模糊的', wrong:'adj. 明显的', count:2, type:'mcq', list:8},
-  {w:'objective', m:'adj. 客观的；n. 目标', wrong:'adj. 激进的', count:1, type:'mcq', list:8},
-  {w:'obligation', m:'n. 义务，责任', wrong:'n. 物体，目标', count:3, type:'spell', list:8},
-  {w:'abolish', m:'v. 废除，废止', wrong:'v. 建立，创建', count:2, type:'spell', list:1},
-  {w:'abrupt', m:'adj. 突然的，唐突的', wrong:'adj. 平缓的', count:1, type:'mcq', list:1},
-  {w:'access', m:'n. 通道，访问权', wrong:'n. 成功', count:2, type:'spell', list:2},
-  {w:'accomplish', m:'v. 完成，实现', wrong:'v. 开始，启动', count:1, type:'mcq', list:2},
-  {w:'adapt', m:'v. 适应，改编', wrong:'v. 采用，收养', count:2, type:'spell', list:3},
-  {w:'adverse', m:'adj. 不利的，有害的', wrong:'adj. 有益的', count:1, type:'mcq', list:4},
-  {w:'allocate', m:'v. 分配，拨出', wrong:'v. 允许，准许', count:2, type:'spell', list:5},
-  {w:'analyze', m:'v. 分析，解析', wrong:'v. 综合，总结', count:1, type:'mcq', list:6},
-  {w:'appeal', m:'v./n. 呼吁，吸引', wrong:'v. 拒绝，排斥', count:2, type:'spell', list:7}
-];
 (function(){
   var html='';
   wrongWords.forEach(function(item){
