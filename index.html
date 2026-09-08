@@ -594,7 +594,7 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
       </div>
       <h2 id="detailListTitle" style="text-align:center;margin-bottom:4px;">List 8 成绩单</h2>
       <p id="detailListSubtitle" class="subtitle" style="text-align:center;margin-bottom:14px;">必考词 unit8 - 第 3 次复习</p>
-      <div class="stats-bar" style="flex-wrap:wrap;">
+      <div class="stats-bar" id="detailStatsBar" style="flex-wrap:wrap;">
         <div class="stat-box" style="flex:1;min-width:45%;">
           <div style="font-size:9px;color:#b83a2a;font-weight:500;margin-bottom:2px;">拼写词</div>
           <div style="display:flex;gap:4px;">
@@ -2198,11 +2198,13 @@ function renderListDetail(num) {
   if (!data) return;
   
   // 更新标题
-  document.getElementById('detailListTitle').textContent = 'List ' + num + ' 成绩单';
-  document.getElementById('detailListSubtitle').textContent = '必考词 unit' + num + ' - 第 ' + data.reviewCount + ' 次复习';
+  var titleEl = document.getElementById('detailListTitle');
+  if (titleEl) titleEl.textContent = 'List ' + num + ' 成绩单';
+  var subEl = document.getElementById('detailListSubtitle');
+  if (subEl) subEl.textContent = '必考词 unit' + num + ' - 第 ' + data.reviewCount + ' 次复习';
   
   // 更新正确率统计
-  var statsBar = document.querySelector('#dashDetail .stats-bar');
+  var statsBar = document.getElementById('detailStatsBar');
   if (statsBar) {
     statsBar.innerHTML = '<div class="stat-box" style="flex:1;min-width:45%;">' +
       '<div style="font-size:9px;color:#b83a2a;font-weight:500;margin-bottom:2px;">拼写词</div>' +
@@ -2216,43 +2218,6 @@ function renderListDetail(num) {
       '<div style="flex:1;text-align:center;"><div class="stat-num" style="color:#7a6fa0;font-size:16px;">' + data.recogRate + '%</div><div class="stat-label">正确率</div></div>' +
       '<div style="flex:1;text-align:center;"><div class="stat-num" style="color:#5a9a6a;font-size:16px;">' + data.recogProgress + '</div><div class="stat-label">进步</div></div>' +
       '</div></div>';
-  }
-  
-  // 更新进步曲线
-  var curveCard = document.querySelector('#dashDetail .card[style*="margin-bottom:12px;padding:14px;"]');
-  if (curveCard && curveCard.querySelector('svg')) {
-    var svg = curveCard.querySelector('svg');
-    var points = data.curveData;
-    var spellPoints = points.map(function(v, i) { return (30 + i * 60) + ',' + (160 - v * 1.4); }).join(' ');
-    var recogPoints = points.map(function(v, i) { return (30 + i * 60) + ',' + (160 - (v + 10) * 1.4); }).join(' ');
-    
-    var polyline1 = svg.querySelectorAll('polyline')[0];
-    var polyline2 = svg.querySelectorAll('polyline')[1];
-    if (polyline1) polyline1.setAttribute('points', spellPoints);
-    if (polyline2) polyline2.setAttribute('points', recogPoints);
-    
-    var circles = svg.querySelectorAll('circle');
-    if (circles.length >= 2) {
-      circles[0].setAttribute('cy', 160 - data.spellRate * 1.4);
-      circles[0].setAttribute('cx', 30 + (points.length - 1) * 60);
-      circles[1].setAttribute('cy', 160 - data.recogRate * 1.4);
-      circles[1].setAttribute('cx', 30 + (points.length - 1) * 60);
-    }
-    
-    var texts = svg.querySelectorAll('text');
-    texts.forEach(function(t) {
-      if (t.textContent.includes('%')) {
-        if (t.getAttribute('fill') === '#b83a2a') {
-          t.textContent = data.spellRate + '%';
-          t.setAttribute('y', 160 - data.spellRate * 1.4 - 7);
-          t.setAttribute('x', 30 + (points.length - 1) * 60);
-        } else if (t.getAttribute('fill') === '#7a6fa0') {
-          t.textContent = data.recogRate + '%';
-          t.setAttribute('y', 160 - data.recogRate * 1.4 - 7);
-          t.setAttribute('x', 30 + (points.length - 1) * 60);
-        }
-      }
-    });
   }
 }
 
