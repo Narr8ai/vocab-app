@@ -295,7 +295,7 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
     <!-- PAGE: 学习计划 (Tab 1) -->
     <div class="mp-page active" id="page-plan">
       <div class="dev-label">PAGE - 学习计划</div>
-      <div class="card" style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(135deg,#fff8f6,#faf8f5);border-color:#e8b4b4;cursor:pointer;" onclick="document.querySelector('.cal-day[data-day=&apos;8&apos;]').click();document.getElementById('selectedDayCard').scrollIntoView({behavior:'smooth',block:'center'});">
+      <div class="card" style="margin-bottom:12px;padding:12px 14px;background:linear-gradient(135deg,#fff8f6,#faf8f5);border-color:#e8b4b4;cursor:pointer;" onclick="startTodayTask()">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <p style="font-size:13px;font-weight:600;color:#b83a2a;margin-bottom:4px;">今日任务 · 9月8日</p>
@@ -370,24 +370,24 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
         <!-- 核心指标 -->
         <div class="dash-metrics">
           <div class="dash-metric">
-            <div class="dash-metric-num" style="color:#b83a2a;">962</div>
+            <div class="dash-metric-num" id="dashLearned" style="color:#b83a2a;">-</div>
             <div class="dash-metric-label">已学单词</div>
-            <div class="dash-metric-sub">/ 3500</div>
+            <div class="dash-metric-sub" id="dashLearnedSub">/ 3500</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" style="color:#7a6fa0;">8</div>
+            <div class="dash-metric-num" id="dashWrong" style="color:#7a6fa0;">-</div>
             <div class="dash-metric-label">错题累计</div>
-            <div class="dash-metric-sub">较昨日 -2</div>
+            <div class="dash-metric-sub" id="dashWrongSub">-</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" style="color:#5a9a6a;">12</div>
+            <div class="dash-metric-num" id="dashStreak" style="color:#5a9a6a;">-</div>
             <div class="dash-metric-label">连续天数</div>
-            <div class="dash-metric-sub">最长 15 天</div>
+            <div class="dash-metric-sub" id="dashStreakSub">-</div>
           </div>
           <div class="dash-metric">
-            <div class="dash-metric-num" style="color:#b89a2a;">82%</div>
+            <div class="dash-metric-num" id="dashAccuracy" style="color:#b89a2a;">-</div>
             <div class="dash-metric-label">平均正确率</div>
-            <div class="dash-metric-sub">较上周 +5%</div>
+            <div class="dash-metric-sub" id="dashAccuracySub">-</div>
           </div>
         </div>
 
@@ -954,6 +954,25 @@ function jumpToWordIndex(){
   openSubpage('wordindex','List 8 - 单词');
 }
 
+function startTodayTask(){
+  var d = calToday;
+  var p = calPlan[d] || {};
+  if (p.newList) {
+    jumpToList(p.newList);
+    setTimeout(function(){
+      openSubpage('wordindex', 'List ' + p.newList + ' - 单词');
+    }, 500);
+  } else if (p.rev && p.rev.length > 0) {
+    jumpToList(p.rev[0].list);
+    setTimeout(function(){
+      openSubpage('wordindex', 'List ' + p.rev[0].list + ' - 单词');
+    }, 500);
+  } else {
+    document.querySelector('.cal-day[data-day="' + d + '"]').click();
+    document.getElementById('selectedDayCard').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+}
+
 function goBack() {
   document.querySelectorAll('.mp-subpage').forEach(s => s.classList.remove('show'));
   document.getElementById('navBack').classList.remove('show');
@@ -970,11 +989,42 @@ function closeSubpage(name) {
   document.getElementById('subpage-' + name).classList.remove('show');
   document.getElementById('navBack').classList.remove('show');
   document.getElementById('navTitle').textContent = getActiveTabTitle();
-  // 如果是错题重测模式，恢复原始数据
-  if(name==='step3' && window._origMcqData){
-    mcqData=window._origMcqData;
+  if (name === 'step3' && window._origMcqData) {
+    mcqData = window._origMcqData;
     delete window._origMcqData;
-    mcqBatchIdx=0;mcqTotalCorrect=0;mcqTotalWrong=0;
+    // 更新错题本：连续正确的词减少 count，count 为 0 的移出
+    if (window._wrongReviewResults) {
+      window._wrongReviewResults.forEach(function(r) {
+        for (var i = wrongWords.length - 1; i >= 0; i--) {
+          if (wrongWords[i].w === r.word) {
+            if (r.correct) {
+              wrongWords[i].count = Math.max(0, wrongWords[i].count - 1);
+              if (wrongWords[i].count === 0) wrongWords.splice(i, 1);
+            } else {
+              wrongWords[i].count = Math.min(5, wrongWords[i].count + 1);
+            }
+            break;
+          }
+        }
+      });
+      delete window._wrongReviewResults;
+      // 重新渲染错题本
+      (function() {
+        var html = '';
+        wrongWords.forEach(function(item) {
+          html += '<div class="wb-word-card">';
+          html += '<span class="wb-count">错 ' + item.count + ' 次</span>';
+          html += '<div class="wb-word">' + item.w + '</div>';
+          html += '<div class="wb-wrong">你的回答: ' + item.wrong + '</div>';
+          html += '<div class="wb-correct">正确: ' + item.m + '</div>';
+          html += '</div>';
+        });
+        if (html === '') html = '<p style="font-size:12px;color:#5a9a6a;text-align:center;padding:20px;">恭喜！错题本已清空！</p>';
+        document.getElementById('wrongBookList').innerHTML = html;
+        document.getElementById('wbTotal').textContent = wrongWords.length;
+      })();
+    }
+    mcqBatchIdx = 0; mcqTotalCorrect = 0; mcqTotalWrong = 0;
     renderMcqBatch();
   }
 }
@@ -1198,6 +1248,7 @@ function checkReviewUnlock(){
   if(bar)bar.style.width=pct+'%';
 }
 checkReviewUnlock();
+updateDashboard();
 
 // ===== Wrong Word Review =====
 function startWrongReview(){
@@ -1421,6 +1472,19 @@ function submitMcq(){
     if(picked===correct)mcqTotalCorrect++;
     else{mcqTotalWrong++;}
   });
+  // 记录错题重测结果
+  if (window._origMcqData) {
+    if (!window._wrongReviewResults) window._wrongReviewResults = [];
+    items.forEach(function(item) {
+      var idx = parseInt(item.dataset.idx);
+      var picked = mcqAnswers[idx] || '';
+      var correct = item.dataset.correct;
+      var wordObj = mcqData[idx];
+      if (wordObj) {
+        window._wrongReviewResults.push({ word: wordObj.w, correct: picked === correct });
+      }
+    });
+  }
   document.getElementById('mcqWrong').textContent=mcqTotalWrong;
   var btn=document.getElementById('mcqSubmitBtn');
   btn.textContent='下一组 →';
@@ -1463,6 +1527,58 @@ function renderSpellBatch(){
     document.getElementById('spellCorrectCount').textContent=spellTotalCorrect;
     var rate=spellWords.length?Math.round(spellTotalCorrect/spellWords.length*100):0;
     document.getElementById('spellRate').textContent=rate+'%';
+    // 更新当前 List 的进度
+    var activeList = null;
+    for (var i = 0; i < listCards.length; i++) {
+      if (listCards[i].cls === 'active') { activeList = listCards[i]; break; }
+    }
+    if (activeList) {
+      activeList.pct = Math.round(rate);
+      if (rate >= 80) {
+        activeList.cls = 'done';
+        activeList.numCls = 'done-num';
+        activeList.meta = '36 词 - 掌握率 ' + rate + '% - 刚刚完成';
+      } else {
+        activeList.meta = '36 词 - 掌握率 ' + rate + '% - 需要复习';
+      }
+      // 重新渲染词表页
+      (function() {
+        var html = '';
+        listCards.forEach(function(c) {
+          html += '<div class="list-card ' + c.cls + '" id="list-' + c.num + '" onclick="openSubpage(&apos;wordindex&apos;,&apos;List ' + c.num + ' - 单词&apos;)">';
+          html += '<div class="list-card-num ' + c.numCls + '">' + c.num + '</div>';
+          html += '<div class="list-card-info">';
+          html += '<div class="list-card-title">List ' + c.num + ' - 必考词 unit' + c.num + '</div>';
+          html += '<div class="list-card-meta">' + c.meta + '</div>';
+          html += '<div class="list-progress"><div class="list-progress-fill" style="width:' + c.pct + '%;"></div></div>';
+          html += '</div></div>';
+        });
+        document.getElementById('listScroll').innerHTML = html;
+        // 更新全局进度
+        var doneCount = 0, activeCount = 0, learnedWords = 0;
+        listCards.forEach(function(c) {
+          if (c.cls === 'done') { doneCount++; learnedWords += Math.round(140 * c.pct / 100); }
+          else if (c.cls === 'active') activeCount++;
+        });
+        var totalWords = listCards.length * 140;
+        var statsBar = document.getElementById('listsStatsBar');
+        if (statsBar) {
+          statsBar.innerHTML = '<div class="stat-box"><div class="stat-num" style="color:#5a9a6a;">' + doneCount + '</div><div class="stat-label">已完成</div></div><div class="stat-box"><div class="stat-num" style="color:#b83a2a;">' + activeCount + '</div><div class="stat-label">进行中</div></div><div class="stat-box"><div class="stat-num">' + (listCards.length - doneCount - activeCount) + '</div><div class="stat-label">待学习</div></div>';
+        }
+        var bar = document.getElementById('globalProgressBar');
+        if (bar) {
+          var donePct = Math.round(doneCount / listCards.length * 100);
+          var activePct = Math.round(activeCount / listCards.length * 100);
+          bar.innerHTML = '<div style="width:' + donePct + '%;background:#5a9a6a;transition:width 0.3s;"></div><div style="width:' + activePct + '%;background:#b83a2a;transition:width 0.3s;"></div>';
+        }
+        var label = document.getElementById('globalProgressLabel');
+        if (label) {
+          label.innerHTML = '<span style="font-size:8px;color:#5a9a6a;">■ 已掌握 ' + learnedWords + ' 词</span><span style="font-size:8px;color:#b0a8a0;">□ 待学习 ' + (totalWords - learnedWords) + ' 词</span>';
+        }
+        checkReviewUnlock();
+        updateDashboard();
+      })();
+    }
     return;
   }
   document.getElementById('spellBatchIdx').textContent=spellBatchIdx+1;
@@ -1539,22 +1655,55 @@ function switchDashView(view) {
   }
 }
 
+function updateDashboard() {
+  var learned = 0;
+  listCards.forEach(function(c) {
+    if (c.cls === 'done') learned += Math.round(140 * c.pct / 100);
+  });
+  var el1 = document.getElementById('dashLearned');
+  if (el1) el1.textContent = learned;
+  var el1s = document.getElementById('dashLearnedSub');
+  if (el1s) el1s.textContent = '/ 3500';
+
+  var wrongTotal = wrongWords.length;
+  var el2 = document.getElementById('dashWrong');
+  if (el2) el2.textContent = wrongTotal;
+  var el2s = document.getElementById('dashWrongSub');
+  if (el2s) el2s.textContent = '点击查看详情';
+
+  var streak = 0;
+  for (var d = calToday; d >= 1; d--) {
+    if (dayDoneSet.has(d)) streak++;
+    else break;
+  }
+  var el3 = document.getElementById('dashStreak');
+  if (el3) el3.textContent = streak;
+  var el3s = document.getElementById('dashStreakSub');
+  if (el3s) el3s.textContent = streak > 0 ? '坚持中 🔥' : '今天打卡开始';
+
+  var doneLists = listCards.filter(function(c) { return c.cls === 'done' && c.pct > 0; });
+  var avgAcc = doneLists.length > 0 ? Math.round(doneLists.reduce(function(s, c) { return s + c.pct; }, 0) / doneLists.length) : 0;
+  var el4 = document.getElementById('dashAccuracy');
+  if (el4) el4.textContent = avgAcc + '%';
+  var el4s = document.getElementById('dashAccuracySub');
+  if (el4s) el4s.textContent = doneLists.length + ' 个List已测';
+}
+
 // 26 List progress bars
 (function() {
   var container = document.getElementById('listProgressChart');
   if (!container) return;
   var html = '';
-  for (var i = 1; i <= 26; i++) {
-    var pct = 0, color = '#e5ddd5';
-    if (i <= 6) { pct = 100; color = '#5a9a6a'; }
-    else if (i === 7) { pct = 78; color = '#5a9a6a'; }
-    else if (i === 8) { pct = 15; color = '#b83a2a'; }
+  for (var i = 0; i < listCards.length; i++) {
+    var c = listCards[i];
+    var pct = c.pct;
+    var color = c.cls === 'done' ? '#5a9a6a' : (c.cls === 'active' ? '#b83a2a' : '#e5ddd5');
     var h = Math.max(4, Math.round(pct / 100 * 70));
     html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">';
     html += '<div style="width:100%;height:70px;display:flex;align-items:flex-end;">';
     html += '<div style="width:100%;height:' + h + 'px;background:' + color + ';border-radius:2px 2px 0 0;transition:height 0.3s;"></div>';
     html += '</div>';
-    html += '<span style="font-size:6px;color:#b0a8a0;">' + i + '</span>';
+    html += '<span style="font-size:6px;color:#b0a8a0;">' + c.num + '</span>';
     html += '</div>';
   }
   container.innerHTML = html;
@@ -1564,20 +1713,22 @@ function switchDashView(view) {
 (function() {
   var container = document.getElementById('listAccuracyChart');
   if (!container) return;
-  var data = [
-    {list:1,spell:85,recog:92},{list:2,spell:78,recog:88},{list:3,spell:90,recog:95},
-    {list:4,spell:72,recog:85},{list:5,spell:88,recog:93},{list:6,spell:82,recog:90},
-    {list:7,spell:65,recog:80}
-  ];
+  var doneLists = listCards.filter(function(c) { return c.cls === 'done' && c.pct > 0; });
+  if (doneLists.length === 0) {
+    container.innerHTML = '<p style="font-size:11px;color:#b0a8a0;text-align:center;padding:10px;">完成第一个 List 后显示正确率对比</p>';
+    return;
+  }
   var html = '';
-  data.forEach(function(d) {
+  doneLists.forEach(function(d) {
+    var spellPct = Math.round(d.pct * 0.75);
+    var recogPct = Math.round(d.pct * 0.95);
     html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">';
-    html += '<span style="font-size:9px;color:#706860;width:36px;flex-shrink:0;">List ' + d.list + '</span>';
+    html += '<span style="font-size:9px;color:#706860;width:36px;flex-shrink:0;">List ' + d.num + '</span>';
     html += '<div style="flex:1;display:flex;gap:2px;">';
-    html += '<div style="height:8px;border-radius:2px;background:#b83a2a;width:' + d.spell + '%;opacity:0.7;"></div>';
-    html += '<div style="height:8px;border-radius:2px;background:#7a6fa0;width:' + d.recog + '%;opacity:0.7;"></div>';
+    html += '<div style="height:8px;border-radius:2px;background:#b83a2a;width:' + spellPct + '%;opacity:0.7;"></div>';
+    html += '<div style="height:8px;border-radius:2px;background:#7a6fa0;width:' + recogPct + '%;opacity:0.7;"></div>';
     html += '</div>';
-    html += '<span style="font-size:8px;color:#b0a8a0;width:28px;text-align:right;">' + d.spell + '%</span>';
+    html += '<span style="font-size:8px;color:#b0a8a0;width:28px;text-align:right;">' + d.pct + '%</span>';
     html += '</div>';
   });
   html += '<div style="display:flex;gap:10px;margin-top:4px;">';
