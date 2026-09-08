@@ -425,6 +425,12 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
             <div class="dash-section-title">连续打卡</div>
             <div id="studentStreak"></div>
           </div>
+
+          <!-- 我的进步曲线 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">我的进步曲线</div>
+            <div id="studentProgressCurve"></div>
+          </div>
         </div>
 
         <!-- ========== 家长视角 ========== -->
@@ -452,6 +458,12 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
           <div class="card dash-section">
             <div class="dash-section-title">完成进度</div>
             <div id="parentProgress"></div>
+          </div>
+
+          <!-- 周度进步趋势 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">周度进步趋势</div>
+            <div id="parentWeeklyTrend"></div>
           </div>
         </div>
 
@@ -481,6 +493,12 @@ h3{font-size:14px;font-weight:500;color:#3d3832;letter-spacing:1px;margin-bottom
           <div class="card dash-section">
             <div class="dash-section-title">复习节奏</div>
             <div id="teacherReviewPace"></div>
+          </div>
+
+          <!-- 难度地图 -->
+          <div class="card dash-section">
+            <div class="dash-section-title">难度地图</div>
+            <div id="teacherDifficultyMap"></div>
           </div>
         </div>
       </div>
@@ -2510,6 +2528,73 @@ function renderStudentView() {
     html += '</div>';
     streakEl.innerHTML = html;
   }
+
+  // 我的进步曲线 - 已学 List 的正确率折线图
+  var curveEl = document.getElementById('studentProgressCurve');
+  if (curveEl) {
+    var doneData = listDetailData.filter(function(d) { return d.spellRate > 0 || d.recogRate > 0; });
+    if (doneData.length < 2) {
+      curveEl.innerHTML = '<div style="text-align:center;padding:20px;color:#b0a8a0;font-size:11px;">完成 2 个 List 后显示进步曲线</div>';
+    } else {
+      var svg = '<svg viewBox="0 0 300 140" style="width:100%;height:auto;display:block;">';
+      // Grid
+      svg += '<line x1="40" y1="110" x2="280" y2="110" stroke="#e5ddd5" stroke-width="0.5"/>';
+      svg += '<line x1="40" y1="85" x2="280" y2="85" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+      svg += '<line x1="40" y1="60" x2="280" y2="60" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+      svg += '<line x1="40" y1="35" x2="280" y2="35" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+      svg += '<line x1="40" y1="10" x2="280" y2="10" stroke="#f0ebe5" stroke-width="0.5" stroke-dasharray="3,3"/>';
+      // Y labels
+      svg += '<text x="36" y="113" font-size="7" fill="#b0a8a0" text-anchor="end">0%</text>';
+      svg += '<text x="36" y="88" font-size="7" fill="#b0a8a0" text-anchor="end">25%</text>';
+      svg += '<text x="36" y="63" font-size="7" fill="#b0a8a0" text-anchor="end">50%</text>';
+      svg += '<text x="36" y="38" font-size="7" fill="#b0a8a0" text-anchor="end">75%</text>';
+      svg += '<text x="36" y="13" font-size="7" fill="#b0a8a0" text-anchor="end">100%</text>';
+      // 80% target line
+      var targetY = 110 - (80/100*100);
+      svg += '<line x1="40" y1="'+targetY+'" x2="280" y2="'+targetY+'" stroke="#5a9a6a" stroke-width="0.8" stroke-dasharray="4,3"/>';
+      svg += '<text x="282" y="'+(targetY+3)+'" font-size="6" fill="#5a9a6a">目标</text>';
+      // Data points
+      var step = doneData.length > 1 ? 240 / (doneData.length - 1) : 0;
+      var spellPts = '', recogPts = '';
+      for (var i = 0; i < doneData.length; i++) {
+        var x = 40 + i * step;
+        var sy = 110 - (doneData[i].spellRate / 100 * 100);
+        var ry = 110 - (doneData[i].recogRate / 100 * 100);
+        spellPts += (i===0?'':' ') + x + ',' + sy;
+        recogPts += (i===0?'':' ') + x + ',' + ry;
+      }
+      // Area fill
+      var areaPts = spellPts;
+      var lastX = 40 + (doneData.length - 1) * step;
+      areaPts += ' ' + lastX + ',110 40,110';
+      svg += '<polygon points="'+areaPts+'" fill="url(#areaGradStu)" opacity="0.3"/>';
+      svg += '<defs><linearGradient id="areaGradStu" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a6fa0" stop-opacity="0.3"/><stop offset="100%" stop-color="#7a6fa0" stop-opacity="0.02"/></linearGradient></defs>';
+      // Lines
+      svg += '<polyline points="'+spellPts+'" fill="none" stroke="#b83a2a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      svg += '<polyline points="'+recogPts+'" fill="none" stroke="#7a6fa0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+      // Points + X labels
+      for (var i = 0; i < doneData.length; i++) {
+        var x = 40 + i * step;
+        var sy = 110 - (doneData[i].spellRate / 100 * 100);
+        var ry = 110 - (doneData[i].recogRate / 100 * 100);
+        svg += '<circle cx="'+x+'" cy="'+sy+'" r="2.5" fill="#b83a2a" stroke="#fff" stroke-width="1"/>';
+        svg += '<circle cx="'+x+'" cy="'+ry+'" r="2.5" fill="#7a6fa0" stroke="#fff" stroke-width="1"/>';
+        svg += '<text x="'+x+'" y="122" font-size="7" fill="#b0a8a0" text-anchor="middle">L'+doneData[i].num+'</text>';
+      }
+      // Last point labels
+      var lastI = doneData.length - 1;
+      var lx = 40 + lastI * step;
+      svg += '<text x="'+lx+'" y="'+(110-(doneData[lastI].spellRate/100*100)-6)+'" font-size="7" fill="#b83a2a" text-anchor="middle" font-weight="600">'+doneData[lastI].spellRate+'%</text>';
+      svg += '<text x="'+lx+'" y="'+(110-(doneData[lastI].recogRate/100*100)-6)+'" font-size="7" fill="#7a6fa0" text-anchor="middle" font-weight="600">'+doneData[lastI].recogRate+'%</text>';
+      svg += '</svg>';
+      // Legend
+      svg += '<div style="display:flex;gap:12px;margin-top:4px;justify-content:center;">';
+      svg += '<span style="font-size:8px;color:#b83a2a;">■ 拼写正确率</span>';
+      svg += '<span style="font-size:8px;color:#7a6fa0;">■ 认识正确率</span>';
+      svg += '</div>';
+      curveEl.innerHTML = svg;
+    }
+  }
 }
 
 // 家长视角：孩子在学吗？效果怎样？需要我管吗？
@@ -2649,6 +2734,58 @@ function renderParentView() {
     html += '<div style="font-size:10px;color:#b0a8a0;text-align:center;">按当前速度，预计还需 ' + estDays + ' 天完成</div>';
     progressEl.innerHTML = html;
   }
+
+  // 周度进步趋势 - 按周汇总平均正确率
+  var trendEl = document.getElementById('parentWeeklyTrend');
+  if (trendEl) {
+    // Group done lists by week (each week ~3-4 lists)
+    var doneData = listDetailData.filter(function(d) { return d.spellRate > 0; });
+    if (doneData.length === 0) {
+      trendEl.innerHTML = '<div style="text-align:center;padding:20px;color:#b0a8a0;font-size:11px;">暂无数据</div>';
+    } else {
+      var weeks = [];
+      var weekSize = Math.max(3, Math.ceil(doneData.length / 3));
+      for (var i = 0; i < doneData.length; i += weekSize) {
+        var chunk = doneData.slice(i, i + weekSize);
+        var avg = Math.round(chunk.reduce(function(s, d) { return s + (d.spellRate + d.recogRate) / 2; }, 0) / chunk.length);
+        weeks.push({ label: '第' + (weeks.length + 1) + '周', rate: avg, lists: chunk.map(function(d){return d.num;}) });
+      }
+
+      var html = '<div style="margin-bottom:10px;">';
+      weeks.forEach(function(w, i) {
+        var color = w.rate >= 80 ? '#5a9a6a' : (w.rate >= 60 ? '#b89a2a' : '#b83a2a');
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+        html += '<span style="font-size:10px;color:#706860;width:45px;">' + w.label + '</span>';
+        html += '<div style="flex:1;height:8px;background:#e5ddd5;border-radius:4px;overflow:hidden;">';
+        html += '<div style="width:' + w.rate + '%;height:100%;background:' + color + ';border-radius:4px;"></div>';
+        html += '</div>';
+        html += '<span style="font-size:11px;font-weight:600;color:' + color + ';width:35px;text-align:right;">' + w.rate + '%</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      // Show improvement
+      if (weeks.length >= 2) {
+        var first = weeks[0].rate;
+        var last = weeks[weeks.length - 1].rate;
+        var diff = last - first;
+        if (diff > 0) {
+          html += '<div style="padding:8px;background:#f5fef5;border-radius:6px;font-size:11px;color:#5a9a6a;text-align:center;">';
+          html += '比第1周提升了 <strong>+' + diff + '%</strong>，持续进步中！';
+          html += '</div>';
+        } else if (diff < 0) {
+          html += '<div style="padding:8px;background:#fef9e5;border-radius:6px;font-size:11px;color:#b89a2a;text-align:center;">';
+          html += '比第1周下降了 <strong>' + diff + '%</strong>，建议加强复习。';
+          html += '</div>';
+        } else {
+          html += '<div style="padding:8px;background:#faf8f5;border-radius:6px;font-size:11px;color:#706860;text-align:center;">';
+          html += '正确率保持稳定，继续保持！';
+          html += '</div>';
+        }
+      }
+      trendEl.innerHTML = html;
+    }
+  }
 }
 
 // 老师视角：整体怎样？哪些地方难？需要调整教学吗？
@@ -2761,6 +2898,58 @@ function renderTeacherView() {
     }
     html += '</div>';
     paceEl.innerHTML = html;
+  }
+
+  // 难度地图 - 各 List 正确率分布
+  var diffEl = document.getElementById('teacherDifficultyMap');
+  if (diffEl) {
+    var doneData = listDetailData.filter(function(d) { return d.spellRate > 0; });
+    if (doneData.length === 0) {
+      diffEl.innerHTML = '<div style="text-align:center;padding:20px;color:#b0a8a0;font-size:11px;">暂无数据</div>';
+    } else {
+      var html = '<div style="margin-bottom:10px;">';
+      doneData.forEach(function(d) {
+        var avgRate = Math.round((d.spellRate + d.recogRate) / 2);
+        var color = avgRate >= 80 ? '#5a9a6a' : (avgRate >= 60 ? '#b89a2a' : '#b83a2a');
+        var label = avgRate >= 80 ? '简单' : (avgRate >= 60 ? '中等' : '困难');
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">';
+        html += '<span style="font-size:10px;color:#706860;width:50px;">List ' + d.num + '</span>';
+        html += '<div style="flex:1;height:8px;background:#e5ddd5;border-radius:4px;overflow:hidden;">';
+        html += '<div style="width:' + avgRate + '%;height:100%;background:' + color + ';border-radius:4px;"></div>';
+        html += '</div>';
+        html += '<span style="font-size:11px;font-weight:600;color:' + color + ';width:35px;text-align:right;">' + avgRate + '%</span>';
+        html += '<span style="font-size:9px;color:' + color + ';width:30px;">' + label + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+
+      // Summary
+      var easy = doneData.filter(function(d) { return (d.spellRate + d.recogRate) / 2 >= 80; }).length;
+      var medium = doneData.filter(function(d) { var r = (d.spellRate + d.recogRate) / 2; return r >= 60 && r < 80; }).length;
+      var hard = doneData.filter(function(d) { return (d.spellRate + d.recogRate) / 2 < 60; }).length;
+
+      html += '<div style="display:flex;gap:8px;padding:10px;background:#faf8f5;border-radius:6px;">';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="font-size:18px;font-weight:700;color:#5a9a6a;">' + easy + '</div>';
+      html += '<div style="font-size:9px;color:#b0a8a0;">简单</div>';
+      html += '</div>';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="font-size:18px;font-weight:700;color:#b89a2a;">' + medium + '</div>';
+      html += '<div style="font-size:9px;color:#b0a8a0;">中等</div>';
+      html += '</div>';
+      html += '<div style="flex:1;text-align:center;">';
+      html += '<div style="font-size:18px;font-weight:700;color:#b83a2a;">' + hard + '</div>';
+      html += '<div style="font-size:9px;color:#b0a8a0;">困难</div>';
+      html += '</div>';
+      html += '</div>';
+
+      if (hard > 0) {
+        html += '<div style="margin-top:8px;padding:8px;background:#fef5f5;border-radius:6px;font-size:11px;color:#b83a2a;line-height:1.6;">';
+        html += '建议重点讲解 ' + hard + ' 个困难 List，学生掌握度较低。';
+        html += '</div>';
+      }
+      diffEl.innerHTML = html;
+    }
   }
 }
 
