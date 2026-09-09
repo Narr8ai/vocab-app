@@ -3,6 +3,7 @@ import { AppService } from "../application/app-service";
 import { clearActiveLearning, saveActiveLearning } from "../domain/active-learning";
 import { calendarDate } from "../domain/calendar";
 import { meaningChoices } from "../domain/meaning-quiz";
+import { formatReportForSharing } from "../domain/report-sharing";
 import { recordDailyCompletion } from "../domain/progress";
 import { finishSession, pauseSession, resumeSession, startSession } from "../domain/sessions";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
@@ -269,6 +270,14 @@ function showReport(audience: ReportAudience, listId?: ListId): void {
   shell.append(element("p", report.message));
   if (audience === "parent") { const notice = element("p", "提示：目前学习数据仅保存在这台设备；跨设备家庭周报将在账户版本提供。"); notice.className = "notice"; shell.append(notice); }
   if (report.weakWordIds.length) shell.append(element("p", `需要复习：${report.weakWordIds.join("、")}`));
+  const copy = element("button", "复制学习摘要"); copy.className = "secondary";
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(formatReportForSharing(report, labels[audience]));
+      copy.textContent = "学习摘要已复制";
+    } catch { shell.append(element("p", "当前浏览器无法复制，请截图或手动记录以上数据。")); }
+  });
+  shell.append(copy);
   for (const nextAudience of ["student", "parent", "teacher"] as const) {
     const button = element("button", labels[nextAudience]); button.className = "secondary"; button.addEventListener("click", () => showReport(nextAudience)); shell.append(button);
   }
