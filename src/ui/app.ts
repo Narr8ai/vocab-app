@@ -1,6 +1,7 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
 import { calendarDate } from "../domain/calendar";
+import { meaningChoices } from "../domain/meaning-quiz";
 import { recordDailyCompletion } from "../domain/progress";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
@@ -123,6 +124,39 @@ function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: 
   shell.append(submit); clearAndShow(shell);
 }
 
+function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): void {
+  const results: { wordId: string; correct: boolean }[] = [];
+  let position = 0;
+  const renderQuestion = (): void => {
+    if (position === wordIds.length) {
+      const spellingIds = wordIds.filter((wordId) => getList(listId).words.find((word) => word.id === wordId)?.defaultSpellingRequired);
+      if (spellingIds.length) { showSpelling(taskId, listId, results, spellingIds); return; }
+      if (demoMode) { const done = card("演示数据不会保存"); done.append(element("p", "你正在查看示例学习记录，退出演示后真实学习数据不会改变。")); const back = element("button", "退出演示"); back.addEventListener("click", () => { demoMode = false; renderDaily(); }); done.append(back); clearAndShow(done); return; }
+      try { saveCompletedTask(taskId, listId, [{ kind: "meaning", results }]); showCompletion(); }
+      catch (error) { const shell = card("保存失败"); shell.append(element("p", error instanceof Error ? error.message : "请返回今日任务后重试。")); clearAndShow(shell); }
+      return;
+    }
+    const wordId = wordIds[position];
+    const word = getList(listId).words.find((candidate) => candidate.id === wordId)!;
+    const shell = card(`词义测试 ${position + 1}/${wordIds.length}`);
+    shell.append(element("p", `请选择 ${word.spelling} 最合适的中文释义。`));
+    for (const choice of meaningChoices(listId, wordId)) {
+      const button = element("button", choice); button.className = "secondary";
+      button.addEventListener("click", () => {
+        const correct = choice === word.meaning;
+        results.push({ wordId, correct });
+        shell.append(element("p", correct ? "回答正确。" : `正确答案：${word.meaning}`));
+        const next = element("button", position + 1 === wordIds.length ? "进入下一步" : "下一题");
+        next.addEventListener("click", () => { position += 1; renderQuestion(); }); shell.append(next);
+        for (const sibling of [...shell.querySelectorAll("button.secondary")]) (sibling as HTMLButtonElement).disabled = true;
+      });
+      shell.append(button);
+    }
+    clearAndShow(shell);
+  };
+  renderQuestion();
+}
+
 function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
   const shell = card("主动回忆");
   shell.append(element("p", "先根据英文回忆意思，再选择你的把握程度。"));
@@ -137,15 +171,10 @@ function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
     }
     shell.append(row);
   }
-  const submit = element("button", "提交词义回忆");
+  const submit = element("button", "进入词义测试");
   submit.addEventListener("click", () => {
     if (ratings.size !== wordIds.length) { shell.append(element("p", "请为每个单词选择一个回忆结果。")); return; }
-    const meaningResults = wordIds.map((wordId) => ({ wordId, correct: ratings.get(wordId) === true }));
-    const spellingIds = wordIds.filter((wordId) => getList(listId).words.find((word) => word.id === wordId)?.defaultSpellingRequired);
-    if (spellingIds.length) { showSpelling(taskId, listId, meaningResults, spellingIds); return; }
-    if (demoMode) { const done = card("演示数据不会保存"); done.append(element("p", "你正在查看示例学习记录，退出演示后真实学习数据不会改变。")); const back = element("button", "退出演示"); back.addEventListener("click", () => { demoMode = false; renderDaily(); }); done.append(back); clearAndShow(done); return; }
-    try { saveCompletedTask(taskId, listId, [{ kind: "meaning", results: meaningResults }]); showCompletion(); }
-    catch (error) { shell.append(element("p", error instanceof Error ? error.message : "保存失败，请重试。")); }
+    showMeaningQuiz(taskId, listId, wordIds);
   });
   shell.append(submit); clearAndShow(shell);
 }
