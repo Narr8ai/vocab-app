@@ -1,5 +1,6 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
+import { calendarDate } from "../domain/calendar";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
@@ -7,9 +8,10 @@ import { getList, type ListId, type VocabList } from "../data/vocab";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
 import { loadDemoProfile } from "../data/demo-profile";
 
-const today = () => new Date().toISOString().slice(0, 10);
 const now = () => new Date().toISOString();
-const repository = new LocalStorageProfileRepository(window.localStorage, Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Shanghai", now);
+const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Shanghai";
+const today = () => calendarDate(now(), timezone);
+const repository = new LocalStorageProfileRepository(window.localStorage, timezone, now);
 const service = new AppService(repository);
 const ids = { next: (prefix: string) => `${prefix}-${crypto.randomUUID()}` };
 const root = document.querySelector<HTMLElement>("#real-learning-root");
