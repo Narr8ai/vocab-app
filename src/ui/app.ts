@@ -161,14 +161,25 @@ function renderDaily(): void {
   if (demoMode) { const exit = element("button", "退出演示"); exit.className = "secondary"; exit.addEventListener("click", () => { demoMode = false; renderDaily(); }); shell.append(exit); }
 }
 
-function showReport(audience: ReportAudience): void {
-  const report = buildReport(demoMode ? loadDemoProfile() : repository.load("real").profile, { audience, period: "week", asOf: now() });
+function showReport(audience: ReportAudience, listId?: ListId): void {
+  const report = buildReport(demoMode ? loadDemoProfile() : repository.load("real").profile, { audience, listId, period: "week", asOf: now() });
   const labels: Record<ReportAudience, string> = { student: "学生", parent: "家长", teacher: "老师" };
   const shell = card(`${labels[audience]}报告`);
+  const scopeLabel = element("label", "查看范围");
+  const scope = element("select");
+  const all = element("option", "全部词表"); all.value = ""; scope.append(all);
+  for (let number = 1; number <= 26; number += 1) {
+    const option = element("option", `List ${number}`); option.value = `L${String(number).padStart(2, "0")}`;
+    if (option.value === listId) option.selected = true;
+    scope.append(option);
+  }
+  scope.addEventListener("change", () => showReport(audience, scope.value || undefined));
+  shell.append(scopeLabel, scope);
   shell.append(element("p", `统计区间：${report.periodStart} 至 ${report.periodEnd}。`));
   shell.append(element("p", `作答样本：${report.sampleSize} 次；词义正确率：${report.meaningRate === null ? "暂无" : `${Math.round(report.meaningRate * 100)}%`}；拼写正确率：${report.spellingRate === null ? "暂无" : `${Math.round(report.spellingRate * 100)}%`}。`));
   shell.append(element("p", `到期复习：${report.dueReviewCount} 项；按时完成率：${report.onTimeReviewRate === null ? "暂无" : `${Math.round(report.onTimeReviewRate * 100)}%`}；需要跟进：${report.overdueReviewCount} 项。`));
   shell.append(element("p", report.message));
+  if (audience === "parent") { const notice = element("p", "提示：目前学习数据仅保存在这台设备；跨设备家庭周报将在账户版本提供。"); notice.className = "notice"; shell.append(notice); }
   if (report.weakWordIds.length) shell.append(element("p", `需要复习：${report.weakWordIds.join("、")}`));
   for (const nextAudience of ["student", "parent", "teacher"] as const) {
     const button = element("button", labels[nextAudience]); button.className = "secondary"; button.addEventListener("click", () => showReport(nextAudience)); shell.append(button);
