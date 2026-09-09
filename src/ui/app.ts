@@ -1,5 +1,6 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
+import { clearActiveLearning, saveActiveLearning } from "../domain/active-learning";
 import { calendarDate } from "../domain/calendar";
 import { meaningChoices } from "../domain/meaning-quiz";
 import { recordDailyCompletion } from "../domain/progress";
@@ -7,6 +8,7 @@ import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
 import { getList, type ListId, type VocabList } from "../data/vocab";
+import type { ActiveLearning, LearningStep } from "../domain/types";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
 import { loadDemoProfile } from "../data/demo-profile";
 
@@ -35,6 +37,12 @@ function card(title: string): HTMLElement {
 
 function clearAndShow(node: HTMLElement): void { root?.replaceChildren(node); }
 
+function checkpoint(taskId: string, listId: ListId, step: LearningStep, wordIds: string[], meaningResults?: { wordId: string; correct: boolean }[]): void {
+  if (demoMode) return;
+  const profile = repository.load("real").profile;
+  repository.save(saveActiveLearning(profile, { taskId, listId, step, wordIds, meaningResults }), "real");
+}
+
 function showPlanSetup(): void {
   const shell = card("开始真实学习计划");
   shell.append(element("p", "选择第一个词表和每天可投入的时间。学习记录只保存在当前设备。"));
@@ -59,6 +67,7 @@ function showPlanSetup(): void {
 
 function showStudy(taskId: string, listId: ListId, estimatedMinutes: number): void {
   const list = getList(listId); const words = list.words.slice(0, 6);
+  checkpoint(taskId, listId, "study", words.map((word) => word.id));
   const shell = card(`今天学习 · ${list.title}`);
   shell.append(element("p", `本次约 ${estimatedMinutes} 分钟，先认识 ${words.length} 个单词，再做主动回忆。`));
   for (const word of words) {
@@ -92,10 +101,11 @@ function saveCompletedTask(taskId: string, listId: ListId, attempts: RecordedAtt
     ...withAttempts,
     tasks: withAttempts.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
   };
-  repository.save(recordDailyCompletion(updated, calendarDate(occurredAt, timezone), occurredAt), "real");
+  repository.save(clearActiveLearning(recordDailyCompletion(updated, calendarDate(occurredAt, timezone), occurredAt), taskId), "real");
 }
 
 function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: string; correct: boolean }[], wordIds: string[]): void {
+  checkpoint(taskId, listId, "spelling", wordIds, meaningResults);
   const shell = card("拼写回忆");
   shell.append(element("p", "根据中文释义输入英文单词。大小写和首尾空格不会影响判定。"));
   const answers = new Map<string, string>();
@@ -125,6 +135,7 @@ function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: 
 }
 
 function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): void {
+  checkpoint(taskId, listId, "meaning", wordIds);
   const results: { wordId: string; correct: boolean }[] = [];
   let position = 0;
   const renderQuestion = (): void => {
@@ -158,6 +169,7 @@ function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): voi
 }
 
 function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
+  checkpoint(taskId, listId, "recall", wordIds);
   const shell = card("主动回忆");
   shell.append(element("p", "先根据英文回忆意思，再选择你的把握程度。"));
   const ratings = new Map<string, boolean>();
@@ -179,6 +191,14 @@ function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
   shell.append(submit); clearAndShow(shell);
 }
 
+function resumeActiveLearning(active: ActiveLearning, estimatedMinutes: number): void {
+  const listId = active.listId as ListId;
+  if (active.step === "recall") { showRecall(active.taskId, listId, active.wordIds); return; }
+  if (active.step === "meaning") { showMeaningQuiz(active.taskId, listId, active.wordIds); return; }
+  if (active.step === "spelling") { showSpelling(active.taskId, listId, active.meaningResults ?? [], active.wordIds); return; }
+  showStudy(active.taskId, listId, estimatedMinutes);
+}
+
 function renderDaily(): void {
   const loaded = demoMode ? { profile: loadDemoProfile(), warning: undefined } : repository.load("real");
   if (loaded.profile.plans.length === 0) { showPlanSetup(); return; }
@@ -188,7 +208,12 @@ function renderDaily(): void {
   if (demoMode) { const badge = element("p", "演示模式：示例数据不会写入你的真实学习记录。"); badge.className = "notice"; shell.append(badge); }
   if (loaded.warning) { const warning = element("p", loaded.warning); warning.className = "notice"; shell.append(warning); }
   const task = queue[0];
-  if (task) { const start = element("button", `开始 ${task.kind === "review" ? "复习" : "学习"} ${task.listId}`); start.addEventListener("click", () => showStudy(task.id, task.listId, task.estimatedMinutes)); shell.append(start); }
+  if (task) {
+    const active = loaded.profile.activeLearning;
+    const resumable = active?.taskId === task.id;
+    const start = element("button", `${resumable ? "继续" : "开始"} ${task.kind === "review" ? "复习" : "学习"} ${task.listId}`);
+    start.addEventListener("click", () => resumable ? resumeActiveLearning(active, task.estimatedMinutes) : showStudy(task.id, task.listId, task.estimatedMinutes)); shell.append(start);
+  }
   const restart = element("button", "新建计划"); restart.className = "secondary"; restart.addEventListener("click", showPlanSetup); shell.append(restart); clearAndShow(shell);
   const report = element("button", "查看学习报告"); report.className = "secondary"; report.addEventListener("click", () => showReport("student")); shell.append(report);
   if (demoMode) { const exit = element("button", "退出演示"); exit.className = "secondary"; exit.addEventListener("click", () => { demoMode = false; renderDaily(); }); shell.append(exit); }

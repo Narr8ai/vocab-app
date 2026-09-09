@@ -21,9 +21,12 @@ function isProfile(value: unknown): value is LearningProfile {
   const attempts = (item: unknown) => Array.isArray(item) && item.every((attempt) => record(attempt) && text(attempt.id) && text(attempt.taskId) && text(attempt.listId) && text(attempt.kind) && text(attempt.reviewOccurrenceId) && timestamp(attempt.occurredAt) && Array.isArray(attempt.results) && attempt.results.every((result) => record(result) && text(result.wordId) && typeof result.correct === "boolean"));
   const sessions = (item: unknown) => Array.isArray(item) && item.every((session) => record(session) && text(session.id) && timestamp(session.startedAt) && (session.endedAt === undefined || timestamp(session.endedAt)) && typeof session.activeSeconds === "number");
   const completions = (item: unknown) => Array.isArray(item) && item.every((completion) => record(completion) && date(completion.date) && stringList(completion.taskIds) && timestamp(completion.completedAt));
+  const activeLearning = (item: unknown) => item === undefined || (record(item) && text(item.taskId) && text(item.listId)
+    && ["study", "recall", "meaning", "spelling"].includes(item.step as string) && stringList(item.wordIds)
+    && (item.meaningResults === undefined || (Array.isArray(item.meaningResults) && item.meaningResults.every((result) => record(result) && text(result.wordId) && typeof result.correct === "boolean"))));
   return profile.schemaVersion === SCHEMA_VERSION && text(profile.id) && text(profile.timezone) && timestamp(profile.createdAt)
     && plans(profile.plans) && tasks(profile.tasks) && listStates(profile.listStates) && wordStates(profile.wordStates)
-    && attempts(profile.attempts) && sessions(profile.sessions) && completions(profile.dailyCompletions);
+    && attempts(profile.attempts) && sessions(profile.sessions) && completions(profile.dailyCompletions) && activeLearning(profile.activeLearning);
 }
 
 export class LocalStorageProfileRepository implements ProfileRepository {
