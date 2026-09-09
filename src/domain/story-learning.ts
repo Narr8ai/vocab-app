@@ -41,6 +41,13 @@ export function validateStoryUnit(unit: StoryUnit): string[] {
   const errors: string[] = [];
   let vocabularyIds = new Set<string>();
 
+  for (const paragraph of unit.paragraphs) {
+    const hasRenderableSegment = paragraph.segments.some(
+      (segment) => segment.type === "word" || segment.text.trim() !== "",
+    );
+    if (!hasRenderableSegment) errors.push(`Paragraph ${paragraph.id} is empty.`);
+  }
+
   try {
     vocabularyIds = new Set(getList(unit.listId).words.map((word) => word.id));
   } catch (error) {

@@ -69,6 +69,17 @@ describe("story learning domain", () => {
     expect(validateStoryUnit(unit)).toEqual(expect.arrayContaining([expect.stringContaining("usage")]));
   });
 
+  it("rejects an empty paragraph even when all story words appear elsewhere", () => {
+    const unit: StoryUnit = {
+      ...valid,
+      paragraphs: [...valid.paragraphs, { id: "p2", segments: [] }],
+    };
+
+    expect(validateStoryUnit(unit)).toEqual(
+      expect.arrayContaining([expect.stringContaining("Paragraph p2 is empty")]),
+    );
+  });
+
   it("returns deterministic distinct recall choices containing the answer", () => {
     const unit: StoryUnit = {
       ...valid,
