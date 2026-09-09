@@ -4,7 +4,7 @@ import type { ReportViewModel } from "../../src/domain/reports";
 
 const report: ReportViewModel = {
   audience: "parent", sampleSize: 12, meaningRate: 0.75, spellingRate: null, onTimeReviewRate: 0.5,
-  dueReviewCount: 2, overdueReviewCount: 1, weakWordIds: ["L01-abandon"], message: "建议先完成复习。",
+  dueReviewCount: 2, overdueReviewCount: 1, activeMinutes: 8, weakWordIds: ["L01-abandon"], message: "建议先完成复习。",
   periodStart: "2026-09-03", periodEnd: "2026-09-09", generatedAt: "2026-09-09T08:00:00.000Z",
 };
 

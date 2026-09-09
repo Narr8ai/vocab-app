@@ -10,6 +10,7 @@ export interface ReportViewModel {
   onTimeReviewRate: number | null;
   dueReviewCount: number;
   overdueReviewCount: number;
+  activeMinutes: number;
   weakWordIds: string[];
   message: string;
   periodStart: string;
@@ -55,6 +56,9 @@ export function buildReport(profile: LearningProfile, options: ReportOptions): R
   const onTimeCount = reviewTasks.filter((task) => task.completedAt && task.completedAt.slice(0, 10) <= task.dueDate).length;
   const overdueReviewCount = reviewTasks.filter((task) => !task.completedAt || task.completedAt.slice(0, 10) > task.dueDate).length;
   const allResults = attempts.flatMap((attempt) => attempt.results);
+  const activeMinutes = Math.round(profile.sessions
+    .filter((session) => session.startedAt >= periodStart && session.startedAt <= periodEnd)
+    .reduce((seconds, session) => seconds + session.activeSeconds, 0) / 60);
   const latest = new Map<string, boolean>();
   for (const result of allResults) latest.set(result.wordId, result.correct);
   const onTimeReviewRate = reviewTasks.length ? onTimeCount / reviewTasks.length : null;
@@ -67,6 +71,7 @@ export function buildReport(profile: LearningProfile, options: ReportOptions): R
     onTimeReviewRate,
     dueReviewCount: reviewTasks.length,
     overdueReviewCount,
+    activeMinutes,
     weakWordIds,
     message: messageFor(options.audience, weakWordIds, reviewTasks.length, overdueReviewCount),
     periodStart: startDate,

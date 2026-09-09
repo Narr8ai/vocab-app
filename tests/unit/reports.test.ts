@@ -59,4 +59,14 @@ describe("shared-evidence reports", () => {
     expect(parent.message).toContain("陪孩子");
     expect(student.message).toContain("优先复习");
   });
+
+  it("includes only recorded effective learning time in the report period", () => {
+    const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
+    profile.sessions = [
+      { id: "in-period", taskId: "t1", startedAt: "2026-09-09T08:00:00.000Z", activeSeconds: 180 },
+      { id: "outside", taskId: "t2", startedAt: "2026-08-01T08:00:00.000Z", activeSeconds: 600 },
+    ];
+
+    expect(buildReport(profile, { audience: "teacher", period: "week", asOf: "2026-09-09T12:00:00.000Z" }).activeMinutes).toBe(3);
+  });
 });

@@ -266,6 +266,7 @@ function showReport(audience: ReportAudience, listId?: ListId): void {
   shell.append(scopeLabel, scope);
   shell.append(element("p", `统计区间：${report.periodStart} 至 ${report.periodEnd}。`));
   shell.append(element("p", `作答样本：${report.sampleSize} 次；词义正确率：${report.meaningRate === null ? "暂无" : `${Math.round(report.meaningRate * 100)}%`}；拼写正确率：${report.spellingRate === null ? "暂无" : `${Math.round(report.spellingRate * 100)}%`}。`));
+  shell.append(element("p", `有效学习时长：${report.activeMinutes} 分钟。`));
   shell.append(element("p", `到期复习：${report.dueReviewCount} 项；按时完成率：${report.onTimeReviewRate === null ? "暂无" : `${Math.round(report.onTimeReviewRate * 100)}%`}；需要跟进：${report.overdueReviewCount} 项。`));
   shell.append(element("p", report.message));
   if (audience === "parent") { const notice = element("p", "提示：目前学习数据仅保存在这台设备；跨设备家庭周报将在账户版本提供。"); notice.className = "notice"; shell.append(notice); }
