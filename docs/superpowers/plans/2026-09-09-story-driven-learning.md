@@ -133,15 +133,17 @@ git commit -m "feat: add original stories for every list"
 **Files:**
 - Create: `src/ui/story-view.ts`
 - Create: `tests/unit/story-view.test.ts`
+- Modify: `package.json`
+- Modify: `package-lock.json`
 - Modify: `src/styles.css`
 
 **Interfaces:**
 - Consumes: `StoryUnit`, `getStoryWordIds`, and vocabulary words resolved by the caller.
 - Produces: `renderStoryView(options: { unit: StoryUnit; words: readonly VocabWord[]; estimatedMinutes: number; onContinue: (wordIds: string[]) => void; speak?: (text: string) => void }): HTMLElement`.
 
-- [ ] **Step 1: Write failing DOM behavior tests**
+- [ ] **Step 1: Add the DOM test environment and write failing behavior tests**
 
-Use a minimal document fixture and assert the returned element exposes the story title, three paragraph containers, six target-word buttons, a hidden detail panel, and a continue button. Clicking `abandon` must set its button to `aria-expanded="true"`, reveal the exact vocabulary meaning and usage note, and clicking “播放发音” must call the supplied `speak` callback with `abandon`. Clicking continue must call `onContinue` with the unit’s six word IDs in story order.
+Run `npm install --save-dev happy-dom@20.14.0`. Add `// @vitest-environment happy-dom` to `tests/unit/story-view.test.ts`, use a real document fixture, and assert the returned element exposes the story title, three paragraph containers, six target-word buttons, a hidden detail panel, and a continue button. Clicking `abandon` must set its button to `aria-expanded="true"`, reveal the exact vocabulary meaning and usage note, and clicking “播放发音” must call the supplied `speak` callback with `abandon`. Clicking continue must call `onContinue` with the unit’s six word IDs in story order.
 
 - [ ] **Step 2: Run the focused test and verify RED**
 
@@ -162,7 +164,7 @@ Expected: all checks PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/ui/story-view.ts src/styles.css tests/unit/story-view.test.ts
+git add package.json package-lock.json src/ui/story-view.ts src/styles.css tests/unit/story-view.test.ts
 git commit -m "feat: add interactive story reader"
 ```
 
