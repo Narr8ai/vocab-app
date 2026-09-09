@@ -40,6 +40,9 @@ describe("renderStoryView", () => {
     expect(view.querySelector(".story-hook")?.textContent).toBe(unit.hook);
     expect(view.querySelectorAll(".story-paragraph")).toHaveLength(3);
     expect(view.querySelectorAll(".story-word")).toHaveLength(6);
+    expect(view.querySelectorAll(".story-word-entry")).toHaveLength(6);
+    expect(view.querySelector(".story-word-entry")?.textContent).toBe("abandon（v. 放弃，抛弃）");
+    expect(view.querySelector(".story-word-definition")?.textContent).toBe("（v. 放弃，抛弃）");
     expect(view.textContent).toContain("故事阅读 · 第 1/4 步");
     expect(view.querySelector("button.story-continue")?.textContent).toContain("进入情节回忆");
     expect(view.querySelector(".story-word-detail")).toBeTruthy();

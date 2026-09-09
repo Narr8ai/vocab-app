@@ -50,4 +50,18 @@ describe("story catalog", () => {
     expect(getStoryUnit("L24").usageNotes["L24-shelter"]).toBe("指震动时结实桌下提供的暂时遮蔽处。");
     expect(promptFor("L24", "L24-shelter")?.cue).toBe("震动时，大家先在哪里暂时躲避？");
   });
+
+  it("does not wrap target words in extra explanatory parentheses", () => {
+    for (const unit of STORY_UNITS.slice(0, 5)) {
+      for (const paragraph of unit.paragraphs) {
+        paragraph.segments.forEach((segment, index) => {
+          if (segment.type !== "word") return;
+          const before = paragraph.segments[index - 1];
+          const after = paragraph.segments[index + 1];
+          expect(before?.type === "text" ? before.text : "").not.toMatch(/[（(]\s*$/);
+          expect(after?.type === "text" ? after.text : "").not.toMatch(/^\s*[）)]/);
+        });
+      }
+    }
+  });
 });

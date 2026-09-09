@@ -102,7 +102,13 @@ export function renderStoryView(options: StoryViewOptions): HTMLElement {
       button.setAttribute("aria-expanded", "false");
       button.addEventListener("click", () => showWord(word));
       buttonsByWordId.set(word.id, button);
-      paragraph.append(button);
+      const entry = document.createElement("span");
+      entry.className = "story-word-entry";
+      const definition = document.createElement("span");
+      definition.className = "story-word-definition";
+      definition.textContent = `（${word.meaning}）`;
+      entry.append(button, definition);
+      paragraph.append(entry);
     });
     card.append(paragraph);
   });

@@ -28,7 +28,9 @@ textarea {
 .story-progress { margin: 0; color: #5363a7; font-size: 14px; font-weight: 700; letter-spacing: .02em; }
 .story-hook { margin: 0 0 22px; color: #555d78; line-height: 1.7; }
 .story-paragraph { margin: 18px 0; color: #303444; line-height: 2; }
+.story-word-entry { display: inline; }
 .story-word { min-height: 44px; margin: 0 3px; padding: 4px 8px; border: 1px solid #b5c0f4; border-radius: 7px; background: #eef1ff; color: #203595; font-weight: 700; cursor: pointer; }
+.story-word-definition { color: #a84435; font-size: .92em; font-weight: 600; }
 .story-word[aria-expanded="true"] { border-color: #2847d7; background: #dce3ff; }
 .story-word-detail { margin: 14px 0; padding: 16px; border: 1px solid #d7dcf4; border-radius: 12px; background: #f7f8ff; color: #303444; }
 .story-detail-spelling { display: inline-block; margin-right: 10px; color: #202f9a; font-size: 20px; }
