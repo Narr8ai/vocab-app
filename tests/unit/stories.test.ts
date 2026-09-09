@@ -45,8 +45,9 @@ describe("story catalog", () => {
     expect(getStoryUnit("L03").usageNotes["L03-acquaint"]).toBe("指成员先熟悉鸟窝任务。");
     expect(promptFor("L03", "L03-acquaint")?.cue).toBe("成员先让自己熟悉了什么？");
 
-    expect(textFor("L24")).toContain("有顶棚的教学楼走廊");
-    expect(getStoryUnit("L24").usageNotes["L24-shelter"]).toBe("指教学楼走廊提供的遮蔽处。");
-    expect(promptFor("L24", "L24-shelter")?.cue).toBe("撤离后，大家先到哪处有遮蔽的地方？");
+    expect(textFor("L24")).toContain("震动时先在结实桌下暂时躲避");
+    expect(textFor("L24")).toContain("远离建筑物的开阔区域集合");
+    expect(getStoryUnit("L24").usageNotes["L24-shelter"]).toBe("指震动时结实桌下提供的暂时遮蔽处。");
+    expect(promptFor("L24", "L24-shelter")?.cue).toBe("震动时，大家先在哪里暂时躲避？");
   });
 });
