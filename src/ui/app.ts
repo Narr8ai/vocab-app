@@ -2,6 +2,7 @@ import "../styles.css";
 import { AppService } from "../application/app-service";
 import { getTodayQueue } from "../domain/scheduler";
 import { submitAttempt } from "../domain/learning";
+import { buildReport, type ReportAudience } from "../domain/reports";
 import { getList, type ListId, type VocabList } from "../data/vocab";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
 
@@ -99,6 +100,20 @@ function renderDaily(): void {
   const task = queue[0];
   if (task) { const start = element("button", `开始 ${task.kind === "review" ? "复习" : "学习"} ${task.listId}`); start.addEventListener("click", () => showStudy(task.id, task.listId, task.estimatedMinutes)); shell.append(start); }
   const restart = element("button", "新建计划"); restart.className = "secondary"; restart.addEventListener("click", showPlanSetup); shell.append(restart); clearAndShow(shell);
+  const report = element("button", "查看学习报告"); report.className = "secondary"; report.addEventListener("click", () => showReport("student")); shell.append(report);
+}
+
+function showReport(audience: ReportAudience): void {
+  const report = buildReport(repository.load("real").profile, { audience, period: "week" });
+  const labels: Record<ReportAudience, string> = { student: "学生", parent: "家长", teacher: "老师" };
+  const shell = card(`${labels[audience]}报告`);
+  shell.append(element("p", `本周样本：${report.sampleSize} 次作答；词义正确率：${report.meaningRate === null ? "暂无" : `${Math.round(report.meaningRate * 100)}%`}。`));
+  shell.append(element("p", report.message));
+  if (report.weakWordIds.length) shell.append(element("p", `需要复习：${report.weakWordIds.join("、")}`));
+  for (const nextAudience of ["student", "parent", "teacher"] as const) {
+    const button = element("button", labels[nextAudience]); button.className = "secondary"; button.addEventListener("click", () => showReport(nextAudience)); shell.append(button);
+  }
+  const back = element("button", "返回今日任务"); back.addEventListener("click", renderDaily); shell.append(back); clearAndShow(shell);
 }
 
 export function bootstrap(): void { renderDaily(); }
