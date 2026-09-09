@@ -22,6 +22,13 @@ describe("spaced review scheduler", () => {
     expect(scheduleReviews({ id: "learn-id", listId: "L01", dueDate: "2026-12-31", kind: "learn", estimatedMinutes: 8 }, profile, deps.clock, deps.ids)).toEqual([]);
   });
 
+  it("spaces reviews from the actual completion date when a task is completed late", () => {
+    const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
+    const reviews = scheduleReviews({ id: "learn-id", listId: "L01", dueDate: "2026-09-01", kind: "learn", estimatedMinutes: 8, completedAt: "2026-09-09T08:00:00.000Z" }, profile, deps.clock, deps.ids);
+
+    expect(reviews.map((task) => task.dueDate)).toEqual(["2026-09-10", "2026-09-11", "2026-09-13", "2026-09-16"]);
+  });
+
   it("puts due reviews ahead of new work and respects the daily minute limit", () => {
     const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
     profile.tasks = [

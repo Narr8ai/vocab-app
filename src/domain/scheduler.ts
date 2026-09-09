@@ -15,10 +15,11 @@ function addDays(date: string, days: number): string {
 
 export function scheduleReviews(completedTask: LearningTask, profile: LearningProfile, _clock: Clock, _ids: IdGenerator): LearningTask[] {
   if (profile.tasks.some((task) => task.sourceTaskId === completedTask.id)) return [];
+  const completionDate = completedTask.completedAt?.slice(0, 10) ?? completedTask.dueDate;
   return reviewDays.map((days) => ({
     id: `${completedTask.id}:review:${days}`,
     listId: completedTask.listId,
-    dueDate: addDays(completedTask.dueDate, days),
+    dueDate: addDays(completionDate, days),
     kind: "review",
     estimatedMinutes: completedTask.estimatedMinutes,
     sourceTaskId: completedTask.id,

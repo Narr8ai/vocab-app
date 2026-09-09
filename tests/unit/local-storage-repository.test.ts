@@ -69,6 +69,17 @@ describe("LocalStorageProfileRepository", () => {
     expect(result.profile.tasks).toEqual([]);
   });
 
+  it("rejects impossible task dates before they reach the scheduler", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("vocab-app:profile:real:v1", JSON.stringify({
+      ...createEmptyProfile("student-a", "Asia/Shanghai", "2026-09-09T08:00:00.000Z"),
+      tasks: [{ id: "task-1", listId: "L01", dueDate: "2026-02-30", kind: "learn", estimatedMinutes: 5 }],
+    }));
+    const repo = new LocalStorageProfileRepository(storage, "Asia/Shanghai", () => "2026-09-09T08:00:00.000Z");
+
+    expect(repo.load("real").warning).toBeTruthy();
+  });
+
   it("preserves the active profile and cleans the temporary record when replacement fails", () => {
     const storage = new FailingStorage();
     const repo = new LocalStorageProfileRepository(storage, "Asia/Shanghai", () => "2026-09-09T08:00:00.000Z");

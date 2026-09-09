@@ -11,8 +11,8 @@ function isProfile(value: unknown): value is LearningProfile {
   const profile = value as Partial<LearningProfile>;
   const record = (item: unknown): item is Record<string, unknown> => typeof item === "object" && item !== null;
   const text = (item: unknown) => typeof item === "string";
-  const date = (item: unknown) => text(item) && /^\d{4}-\d{2}-\d{2}$/.test(item);
-  const timestamp = (item: unknown) => text(item) && !Number.isNaN(Date.parse(item));
+  const date = (item: unknown) => text(item) && /^\d{4}-\d{2}-\d{2}$/.test(item) && new Date(`${item}T12:00:00.000Z`).toISOString().slice(0, 10) === item;
+  const timestamp = (item: unknown) => text(item) && /^\d{4}-\d{2}-\d{2}T/.test(item) && !Number.isNaN(Date.parse(item));
   const stringList = (item: unknown) => Array.isArray(item) && item.every(text);
   const plans = (item: unknown) => Array.isArray(item) && item.every((plan) => record(plan) && text(plan.id) && text(plan.name) && stringList(plan.listIds) && timestamp(plan.createdAt));
   const tasks = (item: unknown) => Array.isArray(item) && item.every((task) => record(task) && text(task.id) && text(task.listId) && date(task.dueDate) && text(task.kind) && typeof task.estimatedMinutes === "number" && task.estimatedMinutes > 0 && (task.sourceTaskId === undefined || text(task.sourceTaskId)) && (task.completedAt === undefined || timestamp(task.completedAt)));
