@@ -2,22 +2,36 @@ import { getStoryWordIds, storyRecallChoices, type StoryUnit } from "../domain/s
 
 export interface StoryRecallOptions {
   unit: StoryUnit;
-  wordIds?: readonly string[];
+  wordIds: readonly string[];
   resolveSpelling: (wordId: string) => string;
   onComplete: (wordIds: string[]) => void;
 }
 
-export function renderStoryRecall({ unit, wordIds: savedWordIds, resolveSpelling, onComplete }: StoryRecallOptions): HTMLElement {
+export function normalizeStoryRecallWordIds(unit: StoryUnit, savedWordIds: readonly string[]): string[] {
+  const currentWordIds = getStoryWordIds(unit);
+  return savedWordIds.length === currentWordIds.length
+    && savedWordIds.every((wordId, index) => wordId === currentWordIds[index])
+    ? [...savedWordIds]
+    : currentWordIds;
+}
+
+export function renderStoryRecall({ unit, wordIds: suppliedWordIds, resolveSpelling, onComplete }: StoryRecallOptions): HTMLElement {
   const view = document.createElement("section");
   view.className = "story-recall-card";
-  const wordIds = savedWordIds ? [...savedWordIds] : getStoryWordIds(unit);
+  const wordIds = [...suppliedWordIds];
+  const prompts = wordIds.map((wordId) => {
+    const prompt = unit.recallPrompts.find((candidate) => candidate.wordId === wordId);
+    if (!prompt) throw new Error(`Missing story recall prompt: ${wordId}`);
+    return prompt;
+  });
   let questionIndex = 0;
   let completed = false;
 
   const renderQuestion = (): void => {
-    const prompt = unit.recallPrompts[questionIndex];
+    const prompt = prompts[questionIndex];
     const answer = resolveSpelling(prompt.wordId);
     const choices = storyRecallChoices(unit, prompt.wordId)
+      .filter((wordId) => wordIds.includes(wordId))
       .map(resolveSpelling)
       .filter((spelling, index, all) => spelling !== "" && all.indexOf(spelling) === index);
     const rotatedChoices = choices.map((_, index) => choices[(index + questionIndex) % choices.length]);

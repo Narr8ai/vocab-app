@@ -16,7 +16,7 @@ import type { ActiveLearning, LearningStep } from "../domain/types";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
 import { loadDemoProfile } from "../data/demo-profile";
 import { renderStoryView } from "./story-view";
-import { renderStoryRecall } from "./story-recall-view";
+import { normalizeStoryRecallWordIds, renderStoryRecall } from "./story-recall-view";
 
 const now = () => new Date().toISOString();
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Shanghai";
@@ -206,10 +206,11 @@ function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): voi
 
 function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
   const unit = getStoryUnit(listId);
-  checkpoint(taskId, listId, "recall", wordIds);
+  const recallWordIds = normalizeStoryRecallWordIds(unit, wordIds);
+  checkpoint(taskId, listId, "recall", recallWordIds);
   clearAndShow(renderStoryRecall({
     unit,
-    wordIds,
+    wordIds: recallWordIds,
     resolveSpelling: (wordId) => getList(listId).words.find((word) => word.id === wordId)?.spelling ?? wordId,
     onComplete: (completedWordIds) => showMeaningQuiz(taskId, listId, completedWordIds),
   }));

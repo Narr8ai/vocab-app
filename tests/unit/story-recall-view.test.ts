@@ -4,7 +4,7 @@ import { getStoryUnit } from "../../src/data/stories";
 import { getList } from "../../src/data/vocab";
 import { getStoryWordIds } from "../../src/domain/story-learning";
 import { createEmptyProfile } from "../../src/domain/profile";
-import { renderStoryRecall } from "../../src/ui/story-recall-view";
+import { normalizeStoryRecallWordIds, renderStoryRecall } from "../../src/ui/story-recall-view";
 
 const unit = getStoryUnit("L01");
 const wordIds = getStoryWordIds(unit);
@@ -12,7 +12,7 @@ const resolveSpelling = (wordId: string): string => getList(unit.listId).words.f
 
 describe("renderStoryRecall", () => {
   it("shows the first plot cue, rotates three spelling choices, and waits for 下一题 after a wrong answer", () => {
-    const view = renderStoryRecall({ unit, resolveSpelling, onComplete: vi.fn() });
+    const view = renderStoryRecall({ unit, wordIds, resolveSpelling, onComplete: vi.fn() });
     const firstPrompt = unit.recallPrompts[0];
     const firstAnswer = resolveSpelling(firstPrompt.wordId);
     const choices = [...view.querySelectorAll<HTMLButtonElement>(".story-recall-option")];
@@ -38,7 +38,7 @@ describe("renderStoryRecall", () => {
 
   it("reports a correct answer and completes once with the original six story IDs", () => {
     const onComplete = vi.fn();
-    const view = renderStoryRecall({ unit, resolveSpelling, onComplete });
+    const view = renderStoryRecall({ unit, wordIds, resolveSpelling, onComplete });
     const correctPositions: number[] = [];
 
     for (let question = 0; question < wordIds.length; question += 1) {
@@ -55,21 +55,29 @@ describe("renderStoryRecall", () => {
     expect(onComplete).toHaveBeenCalledWith(wordIds);
   });
 
-  it("returns supplied saved IDs after plot recall so a resumed flow keeps its original word group", () => {
-    const savedWordIds = getList(unit.listId).words.slice(0, 6).map((word) => word.id);
+  it("renders cues and choice spellings only from the supplied current story group", () => {
     const onComplete = vi.fn();
-    const view = renderStoryRecall({ unit, wordIds: savedWordIds, resolveSpelling, onComplete });
+    const view = renderStoryRecall({ unit, wordIds, resolveSpelling, onComplete });
+    const storySpellings = new Set(wordIds.map(resolveSpelling));
 
     for (let question = 0; question < unit.recallPrompts.length; question += 1) {
       const answer = resolveSpelling(unit.recallPrompts[question].wordId);
-      view.querySelectorAll<HTMLButtonElement>(".story-recall-option").forEach((choice) => {
-        if (choice.textContent === answer) choice.click();
-      });
+      const choices = [...view.querySelectorAll<HTMLButtonElement>(".story-recall-option")];
+      expect(view.querySelector(".story-recall-cue")?.textContent).toBe(unit.recallPrompts[question].cue);
+      expect(choices.map((choice) => choice.textContent).every((spelling) => storySpellings.has(spelling ?? ""))).toBe(true);
+      choices.find((choice) => choice.textContent === answer)!.click();
       view.querySelector<HTMLButtonElement>(".story-recall-next")!.click();
     }
 
-    expect(savedWordIds).not.toEqual(wordIds);
-    expect(onComplete).toHaveBeenCalledWith(savedWordIds);
+    expect(onComplete).toHaveBeenCalledWith(wordIds);
+  });
+
+  it("normalizes a saved group that no longer matches the current story", () => {
+    const staleWordIds = getList(unit.listId).words.slice(0, 6).map((word) => word.id);
+
+    expect(staleWordIds).not.toEqual(wordIds);
+    expect(normalizeStoryRecallWordIds(unit, staleWordIds)).toEqual(wordIds);
+    expect(normalizeStoryRecallWordIds(unit, wordIds)).toEqual(wordIds);
   });
 
   it("resumes recall into a meaning quiz for the checkpointed word group", async () => {
@@ -87,14 +95,17 @@ describe("renderStoryRecall", () => {
     vi.resetModules();
     await import("../../src/ui/app");
     root.querySelector<HTMLButtonElement>("button")!.click();
+    expect(root.querySelector(".story-recall-cue")?.textContent).toBe(unit.recallPrompts[0].cue);
+    const storySpellings = new Set(wordIds.map(resolveSpelling));
+    expect([...root.querySelectorAll<HTMLButtonElement>(".story-recall-option")].map((choice) => choice.textContent).every((spelling) => storySpellings.has(spelling ?? ""))).toBe(true);
     for (const prompt of unit.recallPrompts) {
       const answer = resolveSpelling(prompt.wordId);
       [...root.querySelectorAll<HTMLButtonElement>(".story-recall-option")].find((choice) => choice.textContent === answer)!.click();
       root.querySelector<HTMLButtonElement>(".story-recall-next")!.click();
     }
 
-    expect(root.textContent).toContain(`请选择 ${resolveSpelling(savedWordIds[0])} 最合适的中文释义。`);
+    expect(root.textContent).toContain(`请选择 ${resolveSpelling(wordIds[0])} 最合适的中文释义。`);
     const checkpoint = JSON.parse(window.localStorage.getItem("vocab-app:profile:real:v1") ?? "{}");
-    expect(checkpoint.activeLearning.wordIds).toEqual(savedWordIds);
+    expect(checkpoint.activeLearning.wordIds).toEqual(wordIds);
   });
 });

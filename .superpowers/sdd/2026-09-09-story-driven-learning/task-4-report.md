@@ -71,3 +71,32 @@ catalog IDs instead of a supplied saved set.
   the story catalog, completes plot recall, and verifies both the meaning
   prompt and checkpoint still use the saved group.
 - Recall feedback now has `role="status"` and a DOM assertion covers it.
+
+## Review fix round 2
+
+### RED evidence
+
+`npm test -- tests/unit/story-recall-view.test.ts` failed after the new
+normalization and resumed-flow assertions were added: the pure normalizer did
+not exist, and a mismatched checkpoint continued into a meaning quiz with its
+stale IDs.
+
+### GREEN evidence
+
+- `npm test -- tests/unit/story-recall-view.test.ts tests/unit/story-view.test.ts` — 10 tests passed.
+- `npm run typecheck` — passed.
+- `npm test` — 19 files and 60 tests passed.
+- `npm run build` — passed.
+
+### Review fixes
+
+- Added `normalizeStoryRecallWordIds`. It preserves saved IDs only when they
+  exactly equal the current story target sequence; stale or reordered IDs are
+  normalized to the current story sequence.
+- `showRecall` checkpoints the normalized group and gives that same group to
+  `renderStoryRecall` and the meaning quiz.
+- `renderStoryRecall` requires explicit IDs, derives prompts from their order,
+  limits choices to that group, and returns the identical group on completion.
+- Regression coverage inspects the resumed cue and option spellings, then
+  verifies a mismatched checkpoint is normalized before both rendering and the
+  subsequent meaning checkpoint.
