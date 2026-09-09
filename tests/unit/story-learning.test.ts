@@ -103,4 +103,10 @@ describe("story learning domain", () => {
     expect(new Set(choices)).toHaveLength(choices.length);
     expect(choices.length).toBeLessThanOrEqual(3);
   });
+
+  it("rejects an answer word that is not part of the story", () => {
+    expect(() => storyRecallChoices(valid, "L01-ability")).toThrow(
+      "Unknown story recall word: L01-ability",
+    );
+  });
 });

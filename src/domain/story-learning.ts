@@ -77,6 +77,11 @@ export function validateStoryUnit(unit: StoryUnit): string[] {
 }
 
 export function storyRecallChoices(unit: StoryUnit, wordId: string): string[] {
-  const choices = [wordId, ...getStoryWordIds(unit).filter((candidate) => candidate !== wordId)];
+  const storyWordIds = getStoryWordIds(unit);
+  if (!storyWordIds.includes(wordId)) {
+    throw new Error(`Unknown story recall word: ${wordId}`);
+  }
+
+  const choices = [wordId, ...storyWordIds.filter((candidate) => candidate !== wordId)];
   return choices.filter((candidate, index) => choices.indexOf(candidate) === index).slice(0, 3);
 }
