@@ -4,6 +4,7 @@ import { clearActiveLearning, saveActiveLearning } from "../domain/active-learni
 import { calendarDate } from "../domain/calendar";
 import { meaningChoices } from "../domain/meaning-quiz";
 import { recordDailyCompletion } from "../domain/progress";
+import { finishSession, pauseSession, resumeSession, startSession } from "../domain/sessions";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
@@ -20,6 +21,8 @@ const service = new AppService(repository);
 const ids = { next: (prefix: string) => `${prefix}-${crypto.randomUUID()}` };
 const root = document.querySelector<HTMLElement>("#real-learning-root");
 let demoMode = false;
+let activeSessionId: string | undefined;
+let lastLearningInteraction = Date.now();
 
 export function getSelectedList(listId: ListId): VocabList { return getList(listId); }
 
@@ -41,6 +44,28 @@ function checkpoint(taskId: string, listId: ListId, step: LearningStep, wordIds:
   if (demoMode) return;
   const profile = repository.load("real").profile;
   repository.save(saveActiveLearning(profile, { taskId, listId, step, wordIds, meaningResults }), "real");
+}
+
+function activateSession(taskId: string): void {
+  if (demoMode) return;
+  const profile = repository.load("real").profile;
+  const existing = profile.sessions.find((session) => session.taskId === taskId && !session.endedAt);
+  activeSessionId = existing?.id ?? ids.next("session");
+  repository.save(startSession(profile, activeSessionId, taskId, now()), "real");
+  lastLearningInteraction = Date.now();
+}
+
+function pauseActiveSession(): void {
+  if (!activeSessionId || demoMode) return;
+  const profile = repository.load("real").profile;
+  repository.save(pauseSession(profile, activeSessionId, now()), "real");
+}
+
+function resumeActiveSession(): void {
+  if (!activeSessionId || demoMode || document.visibilityState !== "visible") return;
+  const profile = repository.load("real").profile;
+  repository.save(resumeSession(profile, activeSessionId, now()), "real");
+  lastLearningInteraction = Date.now();
 }
 
 function showPlanSetup(): void {
@@ -67,6 +92,7 @@ function showPlanSetup(): void {
 
 function showStudy(taskId: string, listId: ListId, estimatedMinutes: number): void {
   const list = getList(listId); const words = list.words.slice(0, 6);
+  activateSession(taskId);
   checkpoint(taskId, listId, "study", words.map((word) => word.id));
   const shell = card(`今天学习 · ${list.title}`);
   shell.append(element("p", `本次约 ${estimatedMinutes} 分钟，先认识 ${words.length} 个单词，再做主动回忆。`));
@@ -101,7 +127,9 @@ function saveCompletedTask(taskId: string, listId: ListId, attempts: RecordedAtt
     ...withAttempts,
     tasks: withAttempts.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
   };
-  repository.save(clearActiveLearning(recordDailyCompletion(updated, calendarDate(occurredAt, timezone), occurredAt), taskId), "real");
+  const withCompletion = clearActiveLearning(recordDailyCompletion(updated, calendarDate(occurredAt, timezone), occurredAt), taskId);
+  repository.save(activeSessionId ? finishSession(withCompletion, activeSessionId, occurredAt) : withCompletion, "real");
+  activeSessionId = undefined;
 }
 
 function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: string; correct: boolean }[], wordIds: string[]): void {
@@ -193,6 +221,7 @@ function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
 
 function resumeActiveLearning(active: ActiveLearning, estimatedMinutes: number): void {
   const listId = active.listId as ListId;
+  activateSession(active.taskId);
   if (active.step === "recall") { showRecall(active.taskId, listId, active.wordIds); return; }
   if (active.step === "meaning") { showMeaningQuiz(active.taskId, listId, active.wordIds); return; }
   if (active.step === "spelling") { showSpelling(active.taskId, listId, active.meaningResults ?? [], active.wordIds); return; }
@@ -247,4 +276,10 @@ function showReport(audience: ReportAudience, listId?: ListId): void {
 }
 
 export function bootstrap(): void { renderDaily(); }
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") pauseActiveSession(); else resumeActiveSession(); });
+for (const eventName of ["pointerdown", "keydown"] as const) document.addEventListener(eventName, () => {
+  if (Date.now() - lastLearningInteraction >= 60_000) resumeActiveSession();
+  lastLearningInteraction = Date.now();
+});
+window.setInterval(() => { if (Date.now() - lastLearningInteraction >= 60_000) pauseActiveSession(); }, 15_000);
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootstrap, { once: true }); else bootstrap();
