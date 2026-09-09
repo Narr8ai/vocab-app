@@ -43,4 +43,4 @@ report, schema, and checkpoint step names remain unchanged.
 
 ## Commit
 
-Pending commit: `feat: connect stories to the learning flow`.
+`5f353d1` — `feat: connect stories to the learning flow`.
