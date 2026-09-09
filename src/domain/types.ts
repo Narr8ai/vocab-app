@@ -6,7 +6,7 @@ export type SchemaVersion = typeof SCHEMA_VERSION;
 export type ProfileMode = "real" | "demo";
 
 export interface StudyPlan { id: string; name: string; listIds: string[]; createdAt: string; }
-export interface LearningTask { id: string; listId: string; dueDate: string; kind: string; estimatedMinutes: number; sourceTaskId?: string; }
+export interface LearningTask { id: string; listId: string; dueDate: string; kind: string; estimatedMinutes: number; sourceTaskId?: string; completedAt?: string; }
 export interface ListState { listId: string; completedWordIds: string[]; }
 export interface WordState { wordId: string; meaningCorrect: number; spellingCorrect: number; }
 export interface AttemptResult { wordId: string; correct: boolean; }

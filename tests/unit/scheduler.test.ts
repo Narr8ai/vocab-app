@@ -33,6 +33,12 @@ describe("spaced review scheduler", () => {
     expect(getTodayQueue(profile, "2026-09-09", 16).map((task) => task.id)).toEqual(["overdue", "due"]);
   });
 
+  it("does not return a completed task to the daily queue", () => {
+    const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
+    profile.tasks = [{ id: "done", listId: "L01", dueDate: "2026-09-09", kind: "learn", estimatedMinutes: 8, completedAt: "2026-09-09T08:10:00.000Z" }];
+    expect(getTodayQueue(profile, "2026-09-09", 15)).toEqual([]);
+  });
+
   it("creates one plan with learning tasks after validating the daily limit", () => {
     const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
     const result = createPlan({ name: "September", listIds: ["L01", "L02"], startDate: "2026-09-09", dailyWordTarget: 8, dailyMinuteLimit: 15 }, profile, deps);

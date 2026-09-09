@@ -26,7 +26,7 @@ export function scheduleReviews(completedTask: LearningTask, profile: LearningPr
 }
 
 export function getTodayQueue(profile: LearningProfile, date: string, minuteLimit: number): LearningTask[] {
-  const unfinished = profile.tasks.filter((task) => task.dueDate <= date);
+  const unfinished = profile.tasks.filter((task) => !task.completedAt && task.dueDate <= date);
   const ordered = [...unfinished].sort((a, b) => {
     const rank = (task: LearningTask) => task.kind === "review" ? 0 : 1;
     return rank(a) - rank(b) || a.dueDate.localeCompare(b.dueDate) || a.id.localeCompare(b.id);

@@ -1,6 +1,6 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
-import { getTodayQueue } from "../domain/scheduler";
+import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
 import { getList, type ListId, type VocabList } from "../data/vocab";
@@ -85,7 +85,16 @@ function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
     if (ratings.size !== wordIds.length) { shell.append(element("p", "请为每个单词选择一个回忆结果。")); return; }
     if (demoMode) { const done = card("演示数据不会保存"); done.append(element("p", "你正在查看示例学习记录，退出演示后真实学习数据不会改变。")); const back = element("button", "退出演示"); back.addEventListener("click", () => { demoMode = false; renderDaily(); }); done.append(back); clearAndShow(done); return; }
     const profile = repository.load("real").profile;
-    const updated = submitAttempt({ attemptId: ids.next("attempt"), taskId, listId, kind: "meaning", reviewOccurrenceId: taskId, occurredAt: now(), results: wordIds.map((wordId) => ({ wordId, correct: ratings.get(wordId) === true })) }, profile);
+    const task = profile.tasks.find((candidate) => candidate.id === taskId);
+    if (!task) { shell.append(element("p", "未找到本次学习任务，请返回今日任务后重试。")); return; }
+    const occurredAt = now();
+    const withAttempt = submitAttempt({ attemptId: ids.next("attempt"), taskId, listId, kind: "meaning", reviewOccurrenceId: taskId, occurredAt, results: wordIds.map((wordId) => ({ wordId, correct: ratings.get(wordId) === true })) }, profile);
+    const completedTask = { ...task, completedAt: occurredAt };
+    const reviewTasks = scheduleReviews(completedTask, withAttempt, { now }, ids);
+    const updated = {
+      ...withAttempt,
+      tasks: withAttempt.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
+    };
     repository.save(updated, "real");
     const done = card("学习记录已保存");
     done.append(element("p", "这次回忆结果已经计入真实学习记录。后续复习会按计划出现。"));
