@@ -11,6 +11,15 @@ class MemoryStorage {
   keys() { return [...this.values.keys()]; }
 }
 
+class FailingStorage extends MemoryStorage {
+  failKey?: string;
+
+  override setItem(key: string, value: string) {
+    if (key === this.failKey) throw new Error("storage write failed");
+    super.setItem(key, value);
+  }
+}
+
 describe("LocalStorageProfileRepository", () => {
   it("creates, saves, and reloads an empty real profile", () => {
     const storage = new MemoryStorage();
@@ -44,6 +53,31 @@ describe("LocalStorageProfileRepository", () => {
     expect(result.warning).toBeTruthy();
     expect(result.profile.attempts).toEqual([]);
     expect(storage.keys()).toContain("vocab-app:profile:corrupt:2026-09-09T08:00:00.000Z");
+  });
+
+  it("recovers when a persisted entity is malformed even if its top-level fields exist", () => {
+    const storage = new MemoryStorage();
+    storage.setItem("vocab-app:profile:real:v1", JSON.stringify({
+      ...createEmptyProfile("student-a", "Asia/Shanghai", "2026-09-09T08:00:00.000Z"),
+      tasks: [{ id: "task-1", listId: "L01", kind: "learn", estimatedMinutes: 5 }],
+    }));
+    const repo = new LocalStorageProfileRepository(storage, "Asia/Shanghai", () => "2026-09-09T08:00:00.000Z");
+
+    const result = repo.load("real");
+
+    expect(result.warning).toBeTruthy();
+    expect(result.profile.tasks).toEqual([]);
+  });
+
+  it("preserves the active profile and cleans the temporary record when replacement fails", () => {
+    const storage = new FailingStorage();
+    const repo = new LocalStorageProfileRepository(storage, "Asia/Shanghai", () => "2026-09-09T08:00:00.000Z");
+    repo.save(createEmptyProfile("before", "Asia/Shanghai", "2026-09-09T08:00:00.000Z"));
+    storage.failKey = "vocab-app:profile:real:v1";
+
+    expect(() => repo.save(createEmptyProfile("after", "Asia/Shanghai", "2026-09-09T08:00:00.000Z"))).toThrow("storage write failed");
+    expect(repo.load("real").profile.id).toBe("before");
+    expect(storage.getItem("vocab-app:profile:real:v1:tmp")).toBeNull();
   });
 
   it("clears only real data", () => {
