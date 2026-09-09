@@ -11,7 +11,8 @@ textarea {
   font: inherit;
 }
 
-#real-learning-root { max-width: 720px; margin: 24px auto; padding: 0 16px 32px; }
+#real-learning-root { position: fixed; inset: 0; z-index: 200; overflow: auto; background: #f6f7fb; padding: 24px 16px 32px; }
+#real-learning-root > .daily-card { max-width: 720px; margin: 0 auto; }
 .daily-card { background: #fff; border: 1px solid #e7e7ea; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
 .daily-card h2 { margin: 0 0 8px; font-size: 20px; }
 .daily-card p { color: #63636b; line-height: 1.5; }
