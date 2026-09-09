@@ -10,3 +10,14 @@ select,
 textarea {
   font: inherit;
 }
+
+#real-learning-root { max-width: 720px; margin: 24px auto; padding: 0 16px 32px; }
+.daily-card { background: #fff; border: 1px solid #e7e7ea; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+.daily-card h2 { margin: 0 0 8px; font-size: 20px; }
+.daily-card p { color: #63636b; line-height: 1.5; }
+.daily-card label { display: block; margin: 14px 0 6px; font-weight: 600; }
+.daily-card input, .daily-card select { width: 100%; min-height: 44px; box-sizing: border-box; border: 1px solid #cfcfd5; border-radius: 10px; padding: 8px 10px; }
+.daily-card button { min-height: 44px; border: 0; border-radius: 10px; padding: 8px 14px; margin: 8px 8px 0 0; background: #2847d7; color: #fff; cursor: pointer; }
+.daily-card button.secondary { background: #eceefb; color: #203595; }
+.word-unit { margin: 12px 0; padding: 12px; border-radius: 10px; background: #f6f7fb; }
+.notice { color: #9b3d18; font-size: 14px; }
