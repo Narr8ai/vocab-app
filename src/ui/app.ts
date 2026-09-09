@@ -10,9 +10,13 @@ import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
 import { getList, type ListId, type VocabList } from "../data/vocab";
+import { getStoryUnit } from "../data/stories";
+import { getStoryWordIds } from "../domain/story-learning";
 import type { ActiveLearning, LearningStep } from "../domain/types";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
 import { loadDemoProfile } from "../data/demo-profile";
+import { renderStoryView } from "./story-view";
+import { renderStoryRecall } from "./story-recall-view";
 
 const now = () => new Date().toISOString();
 const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Shanghai";
@@ -92,18 +96,21 @@ function showPlanSetup(): void {
 }
 
 function showStudy(taskId: string, listId: ListId, estimatedMinutes: number): void {
-  const list = getList(listId); const words = list.words.slice(0, 6);
+  const unit = getStoryUnit(listId);
+  const wordIds = getStoryWordIds(unit);
+  const words = wordIds.map((wordId) => getList(listId).words.find((word) => word.id === wordId)!);
   activateSession(taskId);
-  checkpoint(taskId, listId, "study", words.map((word) => word.id));
-  const shell = card(`今天学习 · ${list.title}`);
-  shell.append(element("p", `本次约 ${estimatedMinutes} 分钟，先认识 ${words.length} 个单词，再做主动回忆。`));
-  for (const word of words) {
-    const row = element("div"); row.className = "word-unit";
-    row.append(element("strong", word.spelling), element("p", `${word.phonetic} · ${word.meaning}`)); shell.append(row);
-  }
-  const continueButton = element("button", "进入主动回忆");
-  continueButton.addEventListener("click", () => showRecall(taskId, listId, words.map((word) => word.id)));
-  shell.append(continueButton); clearAndShow(shell);
+  checkpoint(taskId, listId, "study", wordIds);
+  const speak = typeof window.SpeechSynthesisUtterance === "function" && window.speechSynthesis
+    ? (spelling: string) => window.speechSynthesis.speak(new window.SpeechSynthesisUtterance(spelling))
+    : undefined;
+  clearAndShow(renderStoryView({
+    unit,
+    words,
+    estimatedMinutes,
+    onContinue: () => showRecall(taskId, listId),
+    speak,
+  }));
 }
 
 type RecordedAttempt = { kind: "meaning" | "spelling"; results: { wordId: string; correct: boolean }[] };
@@ -197,33 +204,21 @@ function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): voi
   renderQuestion();
 }
 
-function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
+function showRecall(taskId: string, listId: ListId): void {
+  const unit = getStoryUnit(listId);
+  const wordIds = getStoryWordIds(unit);
   checkpoint(taskId, listId, "recall", wordIds);
-  const shell = card("主动回忆");
-  shell.append(element("p", "先根据英文回忆意思，再选择你的把握程度。"));
-  const ratings = new Map<string, boolean>();
-  for (const wordId of wordIds) {
-    const word = getList(listId).words.find((candidate) => candidate.id === wordId)!;
-    const row = element("div"); row.className = "word-unit";
-    row.append(element("strong", word.spelling));
-    for (const [label, correct] of [["认识", true], ["不确定", false], ["不会", false]] as const) {
-      const button = element("button", label); button.className = "secondary";
-      button.addEventListener("click", () => { ratings.set(wordId, correct); row.dataset.rated = "true"; }); row.append(button);
-    }
-    shell.append(row);
-  }
-  const submit = element("button", "进入词义测试");
-  submit.addEventListener("click", () => {
-    if (ratings.size !== wordIds.length) { shell.append(element("p", "请为每个单词选择一个回忆结果。")); return; }
-    showMeaningQuiz(taskId, listId, wordIds);
-  });
-  shell.append(submit); clearAndShow(shell);
+  clearAndShow(renderStoryRecall({
+    unit,
+    resolveSpelling: (wordId) => getList(listId).words.find((word) => word.id === wordId)?.spelling ?? wordId,
+    onComplete: (completedWordIds) => showMeaningQuiz(taskId, listId, completedWordIds),
+  }));
 }
 
 function resumeActiveLearning(active: ActiveLearning, estimatedMinutes: number): void {
   const listId = active.listId as ListId;
   activateSession(active.taskId);
-  if (active.step === "recall") { showRecall(active.taskId, listId, active.wordIds); return; }
+  if (active.step === "recall") { showRecall(active.taskId, listId); return; }
   if (active.step === "meaning") { showMeaningQuiz(active.taskId, listId, active.wordIds); return; }
   if (active.step === "spelling") { showSpelling(active.taskId, listId, active.meaningResults ?? [], active.wordIds); return; }
   showStudy(active.taskId, listId, estimatedMinutes);

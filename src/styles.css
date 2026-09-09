@@ -39,4 +39,13 @@ textarea {
 .story-speak.secondary { background: #eceefb; color: #203595; }
 .story-continue { width: 100%; margin-top: 22px; }
 .story-card button:focus-visible { outline: 3px solid #f2a900; outline-offset: 3px; }
+.story-recall-card { max-width: 760px; margin: 0 auto; box-sizing: border-box; padding: clamp(18px, 4vw, 32px); border: 1px solid #e7e7ea; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+.story-recall-progress, .story-recall-position { margin: 0 0 8px; color: #5363a7; font-size: 14px; font-weight: 700; }
+.story-recall-cue { margin: 18px 0; color: #20243b; font-size: clamp(22px, 5vw, 30px); line-height: 1.4; }
+.story-recall-options { display: grid; gap: 10px; }
+.story-recall-option, .story-recall-next { min-height: 44px; width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #b5c0f4; border-radius: 10px; background: #eef1ff; color: #203595; cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.story-recall-option:disabled { cursor: default; opacity: .72; }
+.story-recall-feedback { margin: 18px 0 0; color: #303444; line-height: 1.6; }
+.story-recall-next { margin-top: 12px; border: 0; background: #2847d7; color: #fff; text-align: center; }
+.story-recall-card button:focus-visible { outline: 3px solid #f2a900; outline-offset: 3px; }
 @media (max-width: 400px) { .story-card { border-radius: 12px; padding: 16px; } .story-paragraph { line-height: 1.85; } }
