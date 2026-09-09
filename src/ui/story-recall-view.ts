@@ -2,14 +2,15 @@ import { getStoryWordIds, storyRecallChoices, type StoryUnit } from "../domain/s
 
 export interface StoryRecallOptions {
   unit: StoryUnit;
+  wordIds?: readonly string[];
   resolveSpelling: (wordId: string) => string;
   onComplete: (wordIds: string[]) => void;
 }
 
-export function renderStoryRecall({ unit, resolveSpelling, onComplete }: StoryRecallOptions): HTMLElement {
+export function renderStoryRecall({ unit, wordIds: savedWordIds, resolveSpelling, onComplete }: StoryRecallOptions): HTMLElement {
   const view = document.createElement("section");
   view.className = "story-recall-card";
-  const wordIds = getStoryWordIds(unit);
+  const wordIds = savedWordIds ? [...savedWordIds] : getStoryWordIds(unit);
   let questionIndex = 0;
   let completed = false;
 
@@ -35,6 +36,7 @@ export function renderStoryRecall({ unit, resolveSpelling, onComplete }: StoryRe
     options.className = "story-recall-options";
     const feedback = document.createElement("p");
     feedback.className = "story-recall-feedback";
+    feedback.setAttribute("role", "status");
     feedback.hidden = true;
     const next = document.createElement("button");
     next.type = "button";

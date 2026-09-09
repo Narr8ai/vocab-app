@@ -108,7 +108,7 @@ function showStudy(taskId: string, listId: ListId, estimatedMinutes: number): vo
     unit,
     words,
     estimatedMinutes,
-    onContinue: () => showRecall(taskId, listId),
+    onContinue: (continuedWordIds) => showRecall(taskId, listId, continuedWordIds),
     speak,
   }));
 }
@@ -204,12 +204,12 @@ function showMeaningQuiz(taskId: string, listId: ListId, wordIds: string[]): voi
   renderQuestion();
 }
 
-function showRecall(taskId: string, listId: ListId): void {
+function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
   const unit = getStoryUnit(listId);
-  const wordIds = getStoryWordIds(unit);
   checkpoint(taskId, listId, "recall", wordIds);
   clearAndShow(renderStoryRecall({
     unit,
+    wordIds,
     resolveSpelling: (wordId) => getList(listId).words.find((word) => word.id === wordId)?.spelling ?? wordId,
     onComplete: (completedWordIds) => showMeaningQuiz(taskId, listId, completedWordIds),
   }));
@@ -218,7 +218,7 @@ function showRecall(taskId: string, listId: ListId): void {
 function resumeActiveLearning(active: ActiveLearning, estimatedMinutes: number): void {
   const listId = active.listId as ListId;
   activateSession(active.taskId);
-  if (active.step === "recall") { showRecall(active.taskId, listId); return; }
+  if (active.step === "recall") { showRecall(active.taskId, listId, active.wordIds); return; }
   if (active.step === "meaning") { showMeaningQuiz(active.taskId, listId, active.wordIds); return; }
   if (active.step === "spelling") { showSpelling(active.taskId, listId, active.meaningResults ?? [], active.wordIds); return; }
   showStudy(active.taskId, listId, estimatedMinutes);

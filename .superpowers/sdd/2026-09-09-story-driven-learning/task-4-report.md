@@ -44,3 +44,30 @@ report, schema, and checkpoint step names remain unchanged.
 ## Commit
 
 `5f353d1` — `feat: connect stories to the learning flow`.
+
+## Review fix round 1
+
+### RED evidence
+
+After adding the regression assertions, `npm test --
+tests/unit/story-recall-view.test.ts` failed in two expected ways: the feedback
+element had no `role="status"`, and recall completion returned the current
+catalog IDs instead of a supplied saved set.
+
+### GREEN evidence
+
+- `npm test -- tests/unit/story-recall-view.test.ts tests/unit/story-view.test.ts` — 8 tests passed.
+- `npm run typecheck` — passed.
+- `npm test` — 19 files and 59 tests passed.
+- `npm run build` — passed.
+
+### Review fixes
+
+- `showRecall` now takes word IDs from its caller, checkpoints those exact IDs,
+  and passes them to the recall view. The resume branch passes
+  `active.wordIds`; the continuation into meaning uses the same saved IDs.
+- `renderStoryRecall` has an optional `wordIds` seam for the persisted group.
+  A happy-dom integration test loads a recall checkpoint whose IDs differ from
+  the story catalog, completes plot recall, and verifies both the meaning
+  prompt and checkpoint still use the saved group.
+- Recall feedback now has `role="status"` and a DOM assertion covers it.
