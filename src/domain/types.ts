@@ -9,7 +9,8 @@ export interface StudyPlan { id: string; name: string; listIds: string[]; create
 export interface LearningTask { id: string; listId: string; dueDate: string; kind: string; estimatedMinutes: number; sourceTaskId?: string; }
 export interface ListState { listId: string; completedWordIds: string[]; }
 export interface WordState { wordId: string; meaningCorrect: number; spellingCorrect: number; }
-export interface Attempt { id: string; wordId: string; kind: string; correct: boolean; occurredAt: string; }
+export interface AttemptResult { wordId: string; correct: boolean; }
+export interface Attempt { id: string; taskId: string; listId: string; kind: string; reviewOccurrenceId: string; results: AttemptResult[]; occurredAt: string; }
 export interface StudySession { id: string; startedAt: string; endedAt?: string; activeSeconds: number; }
 export interface DailyCompletion { date: string; taskIds: string[]; completedAt: string; }
 
