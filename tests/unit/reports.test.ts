@@ -30,4 +30,33 @@ describe("shared-evidence reports", () => {
     ];
     expect(buildReport(profile, { audience: "teacher", listId: "L01", period: "week" }).sampleSize).toBe(1);
   });
+
+  it("derives timely and overdue review evidence from completed tasks", () => {
+    const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-01T08:00:00.000Z");
+    profile.tasks = [
+      { id: "on-time", listId: "L01", dueDate: "2026-09-07", kind: "review", estimatedMinutes: 5, completedAt: "2026-09-07T09:00:00.000Z" },
+      { id: "late", listId: "L01", dueDate: "2026-09-07", kind: "review", estimatedMinutes: 5, completedAt: "2026-09-08T09:00:00.000Z" },
+      { id: "missed", listId: "L01", dueDate: "2026-09-07", kind: "review", estimatedMinutes: 5 },
+      { id: "future", listId: "L01", dueDate: "2026-09-10", kind: "review", estimatedMinutes: 5 },
+    ];
+
+    const report = buildReport(profile, { audience: "teacher", period: "week", asOf: "2026-09-09T12:00:00.000Z" });
+
+    expect(report.onTimeReviewRate).toBeCloseTo(1 / 3);
+    expect(report.dueReviewCount).toBe(3);
+    expect(report.overdueReviewCount).toBe(2);
+    expect(report.message).toContain("2 项需要跟进");
+  });
+
+  it("uses audience-specific guidance while retaining the same evidence", () => {
+    const profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
+    profile.attempts = [{ id: "a1", taskId: "t1", listId: "L01", kind: "meaning", reviewOccurrenceId: "r1", occurredAt: "2026-09-09T08:00:00.000Z", results: [{ wordId: "w1", correct: false }] }];
+
+    const parent = buildReport(profile, { audience: "parent", period: "week", asOf: "2026-09-09T12:00:00.000Z" });
+    const student = buildReport(profile, { audience: "student", period: "week", asOf: "2026-09-09T12:00:00.000Z" });
+
+    expect(parent.sampleSize).toBe(student.sampleSize);
+    expect(parent.message).toContain("陪孩子");
+    expect(student.message).toContain("优先复习");
+  });
 });

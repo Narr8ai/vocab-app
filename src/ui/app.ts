@@ -1,7 +1,7 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
-import { submitAttempt } from "../domain/learning";
+import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
 import { getList, type ListId, type VocabList } from "../data/vocab";
 import { LocalStorageProfileRepository } from "../infrastructure/local-storage-repository";
@@ -66,6 +66,59 @@ function showStudy(taskId: string, listId: ListId, estimatedMinutes: number): vo
   shell.append(continueButton); clearAndShow(shell);
 }
 
+type RecordedAttempt = { kind: "meaning" | "spelling"; results: { wordId: string; correct: boolean }[] };
+
+function showCompletion(): void {
+  const done = card("学习记录已保存");
+  done.append(element("p", "这次词义和拼写结果已经计入真实学习记录；后续复习会按计划出现。"));
+  const back = element("button", "返回今日任务"); back.addEventListener("click", renderDaily); done.append(back); clearAndShow(done);
+}
+
+function saveCompletedTask(taskId: string, listId: ListId, attempts: RecordedAttempt[]): void {
+  const profile = repository.load("real").profile;
+  const task = profile.tasks.find((candidate) => candidate.id === taskId);
+  if (!task) throw new Error("未找到本次学习任务，请返回今日任务后重试。");
+  const occurredAt = now();
+  const withAttempts = attempts.reduce((current, attempt) => submitAttempt({
+    attemptId: ids.next("attempt"), taskId, listId, kind: attempt.kind, reviewOccurrenceId: taskId, occurredAt, results: attempt.results,
+  }, current), profile);
+  const completedTask = { ...task, completedAt: occurredAt };
+  const reviewTasks = scheduleReviews(completedTask, withAttempts, { now }, ids);
+  repository.save({
+    ...withAttempts,
+    tasks: withAttempts.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
+  }, "real");
+}
+
+function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: string; correct: boolean }[], wordIds: string[]): void {
+  const shell = card("拼写回忆");
+  shell.append(element("p", "根据中文释义输入英文单词。大小写和首尾空格不会影响判定。"));
+  const answers = new Map<string, string>();
+  for (const wordId of wordIds) {
+    const word = getList(listId).words.find((candidate) => candidate.id === wordId)!;
+    const row = element("div"); row.className = "word-unit";
+    const input = element("input") as HTMLInputElement; input.placeholder = "输入英文单词";
+    input.addEventListener("input", () => answers.set(wordId, input.value));
+    row.append(element("strong", word.meaning), input); shell.append(row);
+  }
+  const submit = element("button", "提交拼写并完成本次学习");
+  submit.addEventListener("click", () => {
+    if (answers.size !== wordIds.length) { shell.append(element("p", "请完成每个拼写题。")); return; }
+    if (demoMode) { const done = card("演示数据不会保存"); done.append(element("p", "你正在查看示例学习记录，退出演示后真实学习数据不会改变。")); const back = element("button", "退出演示"); back.addEventListener("click", () => { demoMode = false; renderDaily(); }); done.append(back); clearAndShow(done); return; }
+    try {
+      saveCompletedTask(taskId, listId, [
+        { kind: "meaning", results: meaningResults },
+        { kind: "spelling", results: wordIds.map((wordId) => {
+          const word = getList(listId).words.find((candidate) => candidate.id === wordId)!;
+          return { wordId, correct: isSpellingCorrect(answers.get(wordId) ?? "", word.spelling) };
+        }) },
+      ]);
+      showCompletion();
+    } catch (error) { shell.append(element("p", error instanceof Error ? error.message : "保存失败，请重试。")); }
+  });
+  shell.append(submit); clearAndShow(shell);
+}
+
 function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
   const shell = card("主动回忆");
   shell.append(element("p", "先根据英文回忆意思，再选择你的把握程度。"));
@@ -80,25 +133,15 @@ function showRecall(taskId: string, listId: ListId, wordIds: string[]): void {
     }
     shell.append(row);
   }
-  const submit = element("button", "提交回忆并完成本次学习");
+  const submit = element("button", "提交词义回忆");
   submit.addEventListener("click", () => {
     if (ratings.size !== wordIds.length) { shell.append(element("p", "请为每个单词选择一个回忆结果。")); return; }
+    const meaningResults = wordIds.map((wordId) => ({ wordId, correct: ratings.get(wordId) === true }));
+    const spellingIds = wordIds.filter((wordId) => getList(listId).words.find((word) => word.id === wordId)?.defaultSpellingRequired);
+    if (spellingIds.length) { showSpelling(taskId, listId, meaningResults, spellingIds); return; }
     if (demoMode) { const done = card("演示数据不会保存"); done.append(element("p", "你正在查看示例学习记录，退出演示后真实学习数据不会改变。")); const back = element("button", "退出演示"); back.addEventListener("click", () => { demoMode = false; renderDaily(); }); done.append(back); clearAndShow(done); return; }
-    const profile = repository.load("real").profile;
-    const task = profile.tasks.find((candidate) => candidate.id === taskId);
-    if (!task) { shell.append(element("p", "未找到本次学习任务，请返回今日任务后重试。")); return; }
-    const occurredAt = now();
-    const withAttempt = submitAttempt({ attemptId: ids.next("attempt"), taskId, listId, kind: "meaning", reviewOccurrenceId: taskId, occurredAt, results: wordIds.map((wordId) => ({ wordId, correct: ratings.get(wordId) === true })) }, profile);
-    const completedTask = { ...task, completedAt: occurredAt };
-    const reviewTasks = scheduleReviews(completedTask, withAttempt, { now }, ids);
-    const updated = {
-      ...withAttempt,
-      tasks: withAttempt.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
-    };
-    repository.save(updated, "real");
-    const done = card("学习记录已保存");
-    done.append(element("p", "这次回忆结果已经计入真实学习记录。后续复习会按计划出现。"));
-    const back = element("button", "返回今日任务"); back.addEventListener("click", renderDaily); done.append(back); clearAndShow(done);
+    try { saveCompletedTask(taskId, listId, [{ kind: "meaning", results: meaningResults }]); showCompletion(); }
+    catch (error) { shell.append(element("p", error instanceof Error ? error.message : "保存失败，请重试。")); }
   });
   shell.append(submit); clearAndShow(shell);
 }
@@ -119,10 +162,12 @@ function renderDaily(): void {
 }
 
 function showReport(audience: ReportAudience): void {
-  const report = buildReport(demoMode ? loadDemoProfile() : repository.load("real").profile, { audience, period: "week" });
+  const report = buildReport(demoMode ? loadDemoProfile() : repository.load("real").profile, { audience, period: "week", asOf: now() });
   const labels: Record<ReportAudience, string> = { student: "学生", parent: "家长", teacher: "老师" };
   const shell = card(`${labels[audience]}报告`);
-  shell.append(element("p", `本周样本：${report.sampleSize} 次作答；词义正确率：${report.meaningRate === null ? "暂无" : `${Math.round(report.meaningRate * 100)}%`}。`));
+  shell.append(element("p", `统计区间：${report.periodStart} 至 ${report.periodEnd}。`));
+  shell.append(element("p", `作答样本：${report.sampleSize} 次；词义正确率：${report.meaningRate === null ? "暂无" : `${Math.round(report.meaningRate * 100)}%`}；拼写正确率：${report.spellingRate === null ? "暂无" : `${Math.round(report.spellingRate * 100)}%`}。`));
+  shell.append(element("p", `到期复习：${report.dueReviewCount} 项；按时完成率：${report.onTimeReviewRate === null ? "暂无" : `${Math.round(report.onTimeReviewRate * 100)}%`}；需要跟进：${report.overdueReviewCount} 项。`));
   shell.append(element("p", report.message));
   if (report.weakWordIds.length) shell.append(element("p", `需要复习：${report.weakWordIds.join("、")}`));
   for (const nextAudience of ["student", "parent", "teacher"] as const) {

@@ -4,6 +4,10 @@ export type RecallRating = "know" | "uncertain" | "dont-know";
 export interface AttemptInput { attemptId: string; taskId: string; listId: string; kind: string; reviewOccurrenceId: string; occurredAt: string; results: readonly AttemptResult[]; }
 export interface ListCompletion { passed: boolean; accuracy: number; weakWordIds: string[]; }
 
+export function isSpellingCorrect(answer: string, expected: string): boolean {
+  return answer.trim().toLocaleLowerCase() === expected.trim().toLocaleLowerCase();
+}
+
 function updateWordState(existing: WordState | undefined, result: AttemptResult, kind: string): WordState {
   const state = existing ?? { wordId: result.wordId, meaningCorrect: 0, spellingCorrect: 0 };
   const field = kind === "spelling" ? "spellingCorrect" : "meaningCorrect";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { completeRecall, deriveListCompletion, submitAttempt } from "../../src/domain/learning";
+import { completeRecall, deriveListCompletion, isSpellingCorrect, submitAttempt } from "../../src/domain/learning";
 import { createEmptyProfile } from "../../src/domain/profile";
 
 describe("learning evidence", () => {
@@ -26,5 +26,10 @@ describe("learning evidence", () => {
     let profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
     for (const occurrence of ["r1", "r2", "r3"]) profile = submitAttempt({ attemptId: occurrence, taskId: "task", listId: "L01", kind: "meaning", reviewOccurrenceId: occurrence, occurredAt: "2026-09-09T08:00:00.000Z", results: [{ wordId: "w1", correct: true }] }, profile);
     expect(profile.wordStates[0].meaningCorrect).toBe(3);
+  });
+
+  it("checks spelling answers without penalizing letter case or surrounding spaces", () => {
+    expect(isSpellingCorrect("  Abandon ", "abandon")).toBe(true);
+    expect(isSpellingCorrect("abandons", "abandon")).toBe(false);
   });
 });
