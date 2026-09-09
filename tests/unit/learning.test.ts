@@ -28,6 +28,14 @@ describe("learning evidence", () => {
     expect(profile.wordStates[0].meaningCorrect).toBe(3);
   });
 
+  it("does not count duplicate answers from the same review occurrence toward recovery", () => {
+    let profile = createEmptyProfile("student", "Asia/Shanghai", "2026-09-09T08:00:00.000Z");
+    profile = submitAttempt({ attemptId: "first", taskId: "task", listId: "L01", kind: "meaning", reviewOccurrenceId: "r1", occurredAt: "2026-09-09T08:00:00.000Z", results: [{ wordId: "w1", correct: true }] }, profile);
+    profile = submitAttempt({ attemptId: "retry", taskId: "task", listId: "L01", kind: "meaning", reviewOccurrenceId: "r1", occurredAt: "2026-09-09T08:01:00.000Z", results: [{ wordId: "w1", correct: true }] }, profile);
+
+    expect(profile.wordStates[0].meaningCorrect).toBe(1);
+  });
+
   it("checks spelling answers without penalizing letter case or surrounding spaces", () => {
     expect(isSpellingCorrect("  Abandon ", "abandon")).toBe(true);
     expect(isSpellingCorrect("abandons", "abandon")).toBe(false);

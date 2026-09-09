@@ -1,6 +1,7 @@
 import "../styles.css";
 import { AppService } from "../application/app-service";
 import { calendarDate } from "../domain/calendar";
+import { recordDailyCompletion } from "../domain/progress";
 import { getTodayQueue, scheduleReviews } from "../domain/scheduler";
 import { isSpellingCorrect, submitAttempt } from "../domain/learning";
 import { buildReport, type ReportAudience } from "../domain/reports";
@@ -86,10 +87,11 @@ function saveCompletedTask(taskId: string, listId: ListId, attempts: RecordedAtt
   }, current), profile);
   const completedTask = { ...task, completedAt: occurredAt };
   const reviewTasks = scheduleReviews(completedTask, withAttempts, { now }, ids);
-  repository.save({
+  const updated = {
     ...withAttempts,
     tasks: withAttempts.tasks.map((candidate) => candidate.id === taskId ? completedTask : candidate).concat(reviewTasks),
-  }, "real");
+  };
+  repository.save(recordDailyCompletion(updated, calendarDate(occurredAt, timezone), occurredAt), "real");
 }
 
 function showSpelling(taskId: string, listId: ListId, meaningResults: { wordId: string; correct: boolean }[], wordIds: string[]): void {
@@ -167,6 +169,7 @@ function showReport(audience: ReportAudience, listId?: ListId): void {
   const report = buildReport(demoMode ? loadDemoProfile() : repository.load("real").profile, { audience, listId, period: "week", asOf: now() });
   const labels: Record<ReportAudience, string> = { student: "学生", parent: "家长", teacher: "老师" };
   const shell = card(`${labels[audience]}报告`);
+  if (demoMode) { const badge = element("p", "演示模式：以下为示例数据，不会写入真实学习记录。"); badge.className = "notice"; shell.append(badge); }
   const scopeLabel = element("label", "查看范围");
   const scope = element("select");
   const all = element("option", "全部词表"); all.value = ""; scope.append(all);

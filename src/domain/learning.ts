@@ -24,6 +24,10 @@ export function submitAttempt(input: AttemptInput, profile: LearningProfile): Le
   const attempt: Attempt = { id: input.attemptId, taskId: input.taskId, listId: input.listId, kind: input.kind, reviewOccurrenceId: input.reviewOccurrenceId, results: [...input.results], occurredAt: input.occurredAt };
   const wordStates = [...profile.wordStates];
   for (const result of input.results) {
+    const alreadyCounted = profile.attempts.some((previous) => previous.kind === input.kind
+      && previous.reviewOccurrenceId === input.reviewOccurrenceId
+      && previous.results.some((previousResult) => previousResult.wordId === result.wordId));
+    if (alreadyCounted) continue;
     const index = wordStates.findIndex((state) => state.wordId === result.wordId);
     const updated = updateWordState(index < 0 ? undefined : wordStates[index], result, input.kind);
     if (index < 0) wordStates.push(updated); else wordStates[index] = updated;
